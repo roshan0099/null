@@ -27,11 +27,14 @@ const (
 
 	//declaration
 	VAR = "VAR"
+
+	RETURN = "RETURN"
 )
 
 var keywords = map[string]string{
-	"cout": COUT,
-	"var":  VAR,
+	"cout":   COUT,
+	"var":    VAR,
+	"return": RETURN,
 }
 
 func FindKey(word string) string {

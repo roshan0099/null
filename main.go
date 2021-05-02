@@ -3,7 +3,6 @@ package main
 import (
 	// "bufio"
 	"fmt"
-	"null/ast"
 	"null/lexer"
 	"null/parser"
 	_ "null/token"
@@ -24,29 +23,34 @@ func main() {
 
 	// java := lexer.Crete(val)
 
-	input := `var sal = 39;			`
+	input := `
+		5
+		return sal; mm
+		var hai = kaa;`
 
 	// lex := lexer.Create(input)
 
 	lex := lexer.Create(input)
 	parse := parser.New(lex)
-	// err := parse.Err
+	err := parse.Err
 	sam := *parse.ParseProgram()
 
 	// for tok := lex.Identify(); tok.Value != token.EOF; tok = lex.Identify() {
 	// 	fmt.Printf("%+v\n", tok)
 	// }
 
-	// fmt.Println("hey meite : ", sam, err())
+	fmt.Println("hey meite : ", sam.Statements[0].String(), err())
+	fmt.Println("hey meite : ", sam.Statements[1].String(), err())
 	// fmt.Println("=> ", sam.Statements[0].(*ast.VarStmt).Name)
-	for index, val := range sam.Statements {
+	// for index, val := range sam.Statements {
 
-		// fmt.Println("+> ", err())
-		fmt.Println(index, " -- -- -- ", val.(*ast.VarStmt).Token.Value)
-		fmt.Println(index, " -- -- -- ", val.(*ast.VarStmt).Name.TokenLiteral())
-		fmt.Println(index, " -- -- -- ", val.(*ast.VarStmt).Value.TokenLiteral())
+	// 	// fmt.Println("+> ", err())
 
-	}
+	// 	fmt.Println(index, " -- -- -- ", val.(*ast.VarStmt).Token.Value)
+	// 	fmt.Println(index, " -- -- -- ", val.(*ast.VarStmt).Name.TokenLiteral())
+	// 	fmt.Println(index, " -- -- -- ", val.(*ast.VarStmt).Value.TokenLiteral())
+
+	// }
 
 	// for {
 	// 	tok := lex.Identify()

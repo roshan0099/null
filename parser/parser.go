@@ -7,12 +7,22 @@ import (
 	"null/token"
 )
 
+//expression implementation
+type (
+	prefixFuncs func() ast.Expression
+
+	infixFuncs func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
 	lex *lexer.Lexer
 	err []string
 
 	curToken  token.Token
 	peekToken token.Token
+
+	prefixParse map[string]prefixFuncs
+	infixParse  map[string]infixFuncs
 }
 
 func New(lex *lexer.Lexer) *Parser {
@@ -61,8 +71,14 @@ func (p *Parser) ParseStat() ast.Statement {
 
 		return p.ParseVar()
 
+	case token.RETURN:
+
+		return p.ParseReturn()
+
 	default:
 
+		// return p.ParseExpression()
+		fmt.Println("hello : ", p.curToken)
 		return nil
 	}
 
@@ -105,6 +121,8 @@ func (p *Parser) ParseVar() *ast.VarStmt {
 		VarParse.Value = &ast.Identifier{
 			Token: p.curToken,
 		}
+
+		// p.rollToken()
 	}
 
 	// } else {
@@ -146,4 +164,40 @@ func (p *Parser) ErrorValidity(tokenMatch string) {
 func (p *Parser) Err() []string {
 	// fmt.Println("in here : ", p.err)
 	return p.err
+}
+
+func (p *Parser) ParseReturn() *ast.ReturnStmt {
+
+	returnStmt := &ast.ReturnStmt{
+		Token: p.curToken,
+	}
+
+	//interim
+	for !p.peekTokenCheck(token.SEMICOLON) {
+		p.rollToken()
+		fmt.Println("---")
+		returnStmt.Exp = &ast.Identifier{
+			Token: p.curToken,
+		}
+	}
+
+	return returnStmt
+}
+
+//func to parse all the no statments in NULL which are generally expressions
+func (p *Parser) ParseExpression() *ast.ParseExp {
+	prgrmStmt := &ast.ParseExp{
+		Token: p.curToken,
+	}
+
+	return prgrmStmt
+
+}
+
+func (p *Parser) assignPrefix(token string, function prefixFuncs) {
+	p.prefixParse[token] = function
+}
+
+func (p *Parser) assignInfix(token string, function infixFuncs) {
+	p.infixParse[token] = function
 }

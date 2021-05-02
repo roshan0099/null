@@ -93,7 +93,7 @@ type ReturnStmt struct {
 	Exp   Expression
 }
 
-func (r *ReturnStmt) expressionNode() {}
+func (r *ReturnStmt) statementNode() {}
 
 func (r *ReturnStmt) TokenLiteral() string { return r.Token.Value }
 
@@ -105,6 +105,27 @@ func (r *ReturnStmt) String() string {
 
 	if r.Exp != nil {
 		concatInfo.WriteString(r.Exp.String())
+	}
+
+	return concatInfo.String()
+}
+
+//Parse statement
+
+type ParseExp struct {
+	Token token.Token
+	Exp   Expression
+}
+
+func (p *ParseExp) statementNode()       {}
+func (p *ParseExp) TokenLiteral() string { return p.Token.Value }
+func (p *ParseExp) String() string {
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString(p.TokenLiteral() + " ")
+
+	if p.Exp != nil {
+		concatInfo.WriteString(p.Exp.String())
 	}
 
 	return concatInfo.String()
