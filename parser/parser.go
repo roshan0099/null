@@ -28,6 +28,11 @@ type Parser struct {
 func New(lex *lexer.Lexer) *Parser {
 	parse := &Parser{lex: lex}
 
+	//setting up the map
+
+	parse.prefixParse = make(map[string]prefixFuncs)
+	parse.assignPrefix(token.IDENT, parse.identifierParse)
+
 	//to set both cur and peek
 	parse.rollToken()
 	parse.rollToken()
@@ -77,9 +82,9 @@ func (p *Parser) ParseStat() ast.Statement {
 
 	default:
 
-		// return p.ParseExpression()
-		fmt.Println("hello : ", p.curToken)
-		return nil
+		return p.ParseExpressionStmt()
+		// fmt.Println("hello : ", p.curToken)
+		// return nil
 	}
 
 }
@@ -185,13 +190,28 @@ func (p *Parser) ParseReturn() *ast.ReturnStmt {
 }
 
 //func to parse all the no statments in NULL which are generally expressions
-func (p *Parser) ParseExpression() *ast.ParseExp {
+func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	prgrmStmt := &ast.ParseExp{
 		Token: p.curToken,
 	}
 
+	prgrmStmt.Exp = p.ParsingExpression(0)
+
 	return prgrmStmt
 
+}
+
+func (p *Parser) ParsingExpression(order int) ast.Expression {
+
+	prefix := p.prefixParse[p.curToken.Value]
+	if prefix == nil {
+		return nil
+	}
+	return prefix()
+}
+
+func (p *Parser) identifierParse() ast.Expression {
+	return &ast.Identifier{Token: p.curToken}
 }
 
 func (p *Parser) assignPrefix(token string, function prefixFuncs) {
