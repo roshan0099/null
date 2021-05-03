@@ -130,3 +130,13 @@ func (p *ParseExp) String() string {
 
 	return concatInfo.String()
 }
+
+//struct for integral parsing
+type IntegralParse struct {
+	Token token.Token
+	Val   int64
+}
+
+func (i *IntegralParse) expressionNode()      {}
+func (i *IntegralParse) TokenLiteral() string { return i.Token.Value }
+func (i *IntegralParse) String() string       { return i.Token.Value }

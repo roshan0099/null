@@ -5,6 +5,7 @@ import (
 	"null/ast"
 	"null/lexer"
 	"null/token"
+	"strconv"
 )
 
 //expression implementation
@@ -29,9 +30,9 @@ func New(lex *lexer.Lexer) *Parser {
 	parse := &Parser{lex: lex}
 
 	//setting up the map
-
 	parse.prefixParse = make(map[string]prefixFuncs)
 	parse.assignPrefix(token.IDENT, parse.identifierParse)
+	parse.assignPrefix(token.INT, parse.intgerParse)
 
 	//to set both cur and peek
 	parse.rollToken()
@@ -197,24 +198,52 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 
 	prgrmStmt.Exp = p.ParsingExpression(0)
 
+	if p.peekTokenCheck(token.SEMICOLON) {
+		p.rollToken()
+	}
+
 	return prgrmStmt
 
 }
 
 func (p *Parser) ParsingExpression(order int) ast.Expression {
 
-	prefix := p.prefixParse[p.curToken.Value]
+	prefix := p.prefixParse[p.curToken.Type]
+
 	if prefix == nil {
+
 		return nil
 	}
+
 	return prefix()
 }
 
+//for non integer expression
 func (p *Parser) identifierParse() ast.Expression {
+
 	return &ast.Identifier{Token: p.curToken}
 }
 
+//for integer expression
+func (p *Parser) intgerParse() ast.Expression {
+	integer := &ast.IntegralParse{
+		Token: p.curToken,
+	}
+
+	value, err := strconv.ParseInt(p.curToken.Value, 0, 64)
+
+	if err != nil {
+		errVal := fmt.Sprintf("expeted and integer and got : %s", p.curToken.Value)
+		p.err = append(p.err, errVal)
+	}
+
+	integer.Val = value
+
+	return integer
+}
+
 func (p *Parser) assignPrefix(token string, function prefixFuncs) {
+	fmt.Println("assign infix", function())
 	p.prefixParse[token] = function
 }
 
