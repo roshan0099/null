@@ -140,3 +140,23 @@ type IntegralParse struct {
 func (i *IntegralParse) expressionNode()      {}
 func (i *IntegralParse) TokenLiteral() string { return i.Token.Value }
 func (i *IntegralParse) String() string       { return i.Token.Value }
+
+//struct for prefix
+type PrefixExp struct {
+	Token    token.Token
+	Operator string
+	RightExp Expression
+}
+
+func (p *PrefixExp) expressionNode() {}
+func (p *PrefixExp) TokenLiteral() string {
+	return p.TokenLiteral()
+}
+func (p *PrefixExp) String() string {
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString(p.TokenLiteral() + " " + p.Operator + " " + p.RightExp.String())
+
+	return concatInfo.String()
+
+}

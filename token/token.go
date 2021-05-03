@@ -15,6 +15,7 @@ const (
 	//arthmetic operators
 	ASSIGN = "="
 	PLUS   = "+"
+	MINUS  = "-"
 
 	LBRACKET = "("
 	RBRACKET = ")"

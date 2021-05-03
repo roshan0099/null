@@ -8,6 +8,17 @@ import (
 	"strconv"
 )
 
+const (
+	_ = iota
+	GENERAL
+	EQUAL
+	LESSGREAT
+	PLUSMINUS
+	CROSSDIV
+	PREFIX
+	CALL
+)
+
 //expression implementation
 type (
 	prefixFuncs func() ast.Expression
@@ -33,6 +44,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.prefixParse = make(map[string]prefixFuncs)
 	parse.assignPrefix(token.IDENT, parse.identifierParse)
 	parse.assignPrefix(token.INT, parse.intgerParse)
+	parse.assignPrefix(token.MINUS, parse.parsePrefix)
 
 	//to set both cur and peek
 	parse.rollToken()
@@ -190,13 +202,20 @@ func (p *Parser) ParseReturn() *ast.ReturnStmt {
 	return returnStmt
 }
 
+//func to append error messages
+func (p *Parser) errorMsg(errMessage string) {
+
+	message := fmt.Sprintf("oops couldnt parse the token %s", errMessage)
+	p.err = append(p.err, message)
+}
+
 //func to parse all the no statments in NULL which are generally expressions
 func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	prgrmStmt := &ast.ParseExp{
 		Token: p.curToken,
 	}
 
-	prgrmStmt.Exp = p.ParsingExpression(0)
+	prgrmStmt.Exp = p.ParsingExpression(GENERAL)
 
 	if p.peekTokenCheck(token.SEMICOLON) {
 		p.rollToken()
@@ -211,7 +230,7 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 	prefix := p.prefixParse[p.curToken.Type]
 
 	if prefix == nil {
-
+		p.errorMsg(p.curToken.Value)
 		return nil
 	}
 
@@ -233,13 +252,27 @@ func (p *Parser) intgerParse() ast.Expression {
 	value, err := strconv.ParseInt(p.curToken.Value, 0, 64)
 
 	if err != nil {
-		errVal := fmt.Sprintf("expeted and integer and got : %s", p.curToken.Value)
-		p.err = append(p.err, errVal)
+		p.errorMsg(p.curToken.Value)
 	}
 
 	integer.Val = value
 
 	return integer
+}
+
+func (p *Parser) parsePrefix() ast.Expression {
+	prefixStmt := &ast.PrefixExp{
+		Token:    p.curToken,
+		Operator: p.curToken.Value,
+	}
+
+	p.rollToken()
+
+	rightStmt := p.ParsingExpression(GENERAL)
+
+	prefixStmt.RightExp = rightStmt
+
+	return prefixStmt
 }
 
 func (p *Parser) assignPrefix(token string, function prefixFuncs) {
