@@ -13,12 +13,19 @@ const (
 	INT   = "INT"
 
 	//arthmetic operators
-	ASSIGN = "="
-	PLUS   = "+"
-	MINUS  = "-"
+	ASSIGN  = "="
+	PLUS    = "+"
+	MINUS   = "-"
+	GREATER = ">"
+	LESSER  = "<"
+	MULTI   = "*"
+	DIVIDE  = "/"
 
-	LBRACKET = "("
-	RBRACKET = ")"
+	LBRACKET    = "("
+	RBRACKET    = ")"
+	EXCLAMATORY = "!"
+	EQUAL       = "=="
+	NEQUAL      = "!="
 
 	//delimiters
 	COMMA     = ","

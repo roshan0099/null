@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 	"null/token"
 )
 
@@ -68,7 +69,7 @@ func (v *VarStmt) String() string {
 	if v.Value != nil {
 		concatInfo.WriteString(v.Value.String())
 	}
-	concatInfo.WriteString(";")
+	// concatInfo.WriteString(";")
 	return concatInfo.String()
 }
 
@@ -78,6 +79,7 @@ type Identifier struct {
 }
 
 func (i *Identifier) TokenLiteral() string {
+	fmt.Println("identi : ", i.Token.Value)
 	return i.Token.Value
 }
 
@@ -122,8 +124,6 @@ func (p *ParseExp) TokenLiteral() string { return p.Token.Value }
 func (p *ParseExp) String() string {
 	var concatInfo bytes.Buffer
 
-	concatInfo.WriteString(p.TokenLiteral() + " ")
-
 	if p.Exp != nil {
 		concatInfo.WriteString(p.Exp.String())
 	}
@@ -150,13 +150,31 @@ type PrefixExp struct {
 
 func (p *PrefixExp) expressionNode() {}
 func (p *PrefixExp) TokenLiteral() string {
-	return p.TokenLiteral()
+	return p.Token.Value
 }
 func (p *PrefixExp) String() string {
 	var concatInfo bytes.Buffer
 
-	concatInfo.WriteString(p.TokenLiteral() + " " + p.Operator + " " + p.RightExp.String())
-
+	concatInfo.WriteString("(" + p.Operator + " " + p.RightExp.String() + ")")
 	return concatInfo.String()
 
+}
+
+//struct for infix Exp
+type InfixExp struct {
+	Token    token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (i *InfixExp) expressionNode()      {}
+func (i *InfixExp) TokenLiteral() string { return i.Token.Value }
+func (i *InfixExp) String() string {
+
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString("(" + i.Left.String() + " " + i.Operator + " " + i.Right.String() + ")")
+	fmt.Println("infix : ", concatInfo.String())
+	return concatInfo.String()
 }

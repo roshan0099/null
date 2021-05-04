@@ -24,8 +24,8 @@ func main() {
 	// java := lexer.Crete(val)
 
 	input := `
-		kkkk
-		56
+		!kkkk;
+		56+7+4;
 		return sal;
 		var hai = kaa;`
 
@@ -46,9 +46,8 @@ func main() {
 	fmt.Println("statement : ", sam)
 	for index, val := range sam.Statements {
 
-		// fmt.Println("+> ", err())
-
-		fmt.Println(index, " -- -- -- ", val.String(), " --- ", val)
+		// 	// fmt.Println("+> ", err())
+		fmt.Println(index, " -- -- -- ", val.String())
 	}
 
 	// for {

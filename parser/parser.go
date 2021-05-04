@@ -45,6 +45,11 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.IDENT, parse.identifierParse)
 	parse.assignPrefix(token.INT, parse.intgerParse)
 	parse.assignPrefix(token.MINUS, parse.parsePrefix)
+	parse.assignPrefix(token.EXCLAMATORY, parse.parsePrefix)
+
+	parse.infixParse = make(map[string]infixFuncs)
+	parse.assignInfix(token.PLUS, parse.parseInfix)
+	parse.assignInfix(token.MULTI, parse.parseInfix)
 
 	//to set both cur and peek
 	parse.rollToken()
@@ -70,8 +75,6 @@ func (p *Parser) ParseProgram() *ast.Program {
 		parseStat := p.ParseStat()
 		if parseStat != nil {
 
-			// fmt.Println(parseStat)
-
 			program.Statements = append(program.Statements, parseStat)
 		}
 		p.rollToken()
@@ -94,7 +97,7 @@ func (p *Parser) ParseStat() ast.Statement {
 		return p.ParseReturn()
 
 	default:
-
+		fmt.Println("hello : ", p.curToken)
 		return p.ParseExpressionStmt()
 		// fmt.Println("hello : ", p.curToken)
 		// return nil
@@ -193,7 +196,7 @@ func (p *Parser) ParseReturn() *ast.ReturnStmt {
 	//interim
 	for !p.peekTokenCheck(token.SEMICOLON) {
 		p.rollToken()
-		fmt.Println("---")
+
 		returnStmt.Exp = &ast.Identifier{
 			Token: p.curToken,
 		}
@@ -234,7 +237,23 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 		return nil
 	}
 
-	return prefix()
+	leftexp := prefix()
+
+	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
+
+		operator, ok := p.infixParse[p.peekToken.Type]
+
+		if !ok {
+			return leftexp
+		}
+
+		p.rollToken()
+		leftexp = operator(leftexp)
+
+		//yet to complete
+	}
+	fmt.Println("this is the parsed exp : ", leftexp)
+	return leftexp
 }
 
 //for non integer expression
@@ -260,6 +279,25 @@ func (p *Parser) intgerParse() ast.Expression {
 	return integer
 }
 
+func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
+
+	prefixExp := &ast.InfixExp{
+		Token:    p.curToken,
+		Operator: p.curToken.Value,
+		Left:     leftExp,
+	}
+
+	presentPrecedence := p.currentPrecedence()
+
+	p.rollToken()
+
+	rightStatement := p.ParsingExpression(presentPrecedence)
+
+	prefixExp.Right = rightStatement
+
+	return prefixExp
+}
+
 func (p *Parser) parsePrefix() ast.Expression {
 	prefixStmt := &ast.PrefixExp{
 		Token:    p.curToken,
@@ -271,12 +309,29 @@ func (p *Parser) parsePrefix() ast.Expression {
 	rightStmt := p.ParsingExpression(GENERAL)
 
 	prefixStmt.RightExp = rightStmt
-
+	fmt.Println("this is => ", prefixStmt.Operator, prefixStmt.RightExp.String())
 	return prefixStmt
 }
 
+func (p *Parser) nextPrecedence() int {
+
+	if val, ok := Precedence[p.peekToken.Value]; ok {
+		return val
+	}
+
+	return GENERAL
+}
+
+func (p *Parser) currentPrecedence() int {
+	if val, ok := Precedence[p.curToken.Value]; ok {
+		return val
+	}
+
+	return GENERAL
+}
+
 func (p *Parser) assignPrefix(token string, function prefixFuncs) {
-	fmt.Println("assign infix", function())
+
 	p.prefixParse[token] = function
 }
 

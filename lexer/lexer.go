@@ -96,6 +96,14 @@ func (lex *Lexer) Identify() token.Token {
 	case ',':
 		info = identifyingTokens(token.COMMA, lex.currentPoint)
 
+	case '!':
+		info = identifyingTokens(token.EXCLAMATORY, lex.currentPoint)
+
+	case '+':
+		info = identifyingTokens(token.PLUS, lex.currentPoint)
+
+	case '*':
+		info = identifyingTokens(token.MULTI, lex.currentPoint)
 	case 0:
 		info.Type = "END"
 		info.Value = token.EOF
