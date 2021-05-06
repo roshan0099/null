@@ -50,6 +50,10 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.infixParse = make(map[string]infixFuncs)
 	parse.assignInfix(token.PLUS, parse.parseInfix)
 	parse.assignInfix(token.MULTI, parse.parseInfix)
+	parse.assignInfix(token.MINUS, parse.parseInfix)
+	parse.assignInfix(token.DIVIDE, parse.parseInfix)
+	parse.assignInfix(token.EQUAL, parse.parseInfix)
+	parse.assignInfix(token.NEQUAL, parse.parseInfix)
 
 	//to set both cur and peek
 	parse.rollToken()
@@ -223,7 +227,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	if p.peekTokenCheck(token.SEMICOLON) {
 		p.rollToken()
 	}
-
+	fmt.Println("this is Parse expression statemte : ", prgrmStmt)
 	return prgrmStmt
 
 }
@@ -240,7 +244,7 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 	leftexp := prefix()
 
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
-
+		fmt.Println("this is the order  : ", p.nextPrecedence())
 		operator, ok := p.infixParse[p.peekToken.Type]
 
 		if !ok {
@@ -281,7 +285,7 @@ func (p *Parser) intgerParse() ast.Expression {
 
 func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 
-	prefixExp := &ast.InfixExp{
+	infixExp := &ast.InfixExp{
 		Token:    p.curToken,
 		Operator: p.curToken.Value,
 		Left:     leftExp,
@@ -293,9 +297,9 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 
 	rightStatement := p.ParsingExpression(presentPrecedence)
 
-	prefixExp.Right = rightStatement
-
-	return prefixExp
+	infixExp.Right = rightStatement
+	fmt.Println("this is infix inside", infixExp, " ---%% ", infixExp.Left)
+	return infixExp
 }
 
 func (p *Parser) parsePrefix() ast.Expression {

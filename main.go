@@ -25,7 +25,7 @@ func main() {
 
 	input := `
 		!kkkk;
-		56+7+4;
+		56 / 54 == 89 * 0;
 		return sal;
 		var hai = kaa;`
 

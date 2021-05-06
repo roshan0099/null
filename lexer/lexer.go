@@ -66,6 +66,21 @@ func isNumber(ch byte) bool {
 	return ch >= '0' && ch <= '9'
 }
 
+//func that returns the next byte
+func (lex *Lexer) nextPoint() byte {
+	nextpoint := lex.currentPosition
+
+	if nextpoint >= len(lex.code) {
+		return 0
+	}
+	return lex.code[nextpoint+1]
+}
+
+//func to return the curent byte thats been read as string
+func (lex *Lexer) byteString() string {
+	return string(lex.code[lex.currentPosition])
+}
+
 //func to identify the word/symbol and derive meaning out of it
 func (lex *Lexer) Identify() token.Token {
 
@@ -78,13 +93,27 @@ func (lex *Lexer) Identify() token.Token {
 	switch lex.currentPoint {
 
 	case '=':
-		info = identifyingTokens(token.ASSIGN, lex.currentPoint)
+		if lex.nextPoint() == '=' {
+
+			equalToken := lex.byteString()
+
+			lex.read()
+
+			info = token.Token{
+				Type:  token.EQUAL,
+				Value: equalToken + string(lex.currentPoint),
+			}
+
+		} else {
+			info = identifyingTokens(token.ASSIGN, lex.currentPoint)
+		}
 
 	case '(':
 		// info.Type = token.LBRACKET
 		// info.Value = string(lex.currentPoint)
 
 		info = identifyingTokens(token.LBRACKET, lex.currentPoint)
+
 	case ')':
 		// info.Type = token.RBRACKET
 		// info.Value = string(lex.currentPoint)
@@ -97,13 +126,28 @@ func (lex *Lexer) Identify() token.Token {
 		info = identifyingTokens(token.COMMA, lex.currentPoint)
 
 	case '!':
-		info = identifyingTokens(token.EXCLAMATORY, lex.currentPoint)
+		if lex.nextPoint() == '=' {
+			word := lex.byteString()
+
+			lex.read()
+
+			info = token.Token{
+				Type:  token.NEQUAL,
+				Value: word + lex.byteString(),
+			}
+		} else {
+			info = identifyingTokens(token.EXCLAMATORY, lex.currentPoint)
+		}
 
 	case '+':
 		info = identifyingTokens(token.PLUS, lex.currentPoint)
 
 	case '*':
 		info = identifyingTokens(token.MULTI, lex.currentPoint)
+
+	case '/':
+		info = identifyingTokens(token.DIVIDE, lex.currentPoint)
+
 	case 0:
 		info.Type = "END"
 		info.Value = token.EOF
