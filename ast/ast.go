@@ -2,7 +2,7 @@ package ast
 
 import (
 	"bytes"
-	"fmt"
+	_ "fmt"
 	"null/token"
 )
 
@@ -79,7 +79,7 @@ type Identifier struct {
 }
 
 func (i *Identifier) TokenLiteral() string {
-	fmt.Println("identi : ", i.Token.Value)
+
 	return i.Token.Value
 }
 
@@ -175,6 +175,6 @@ func (i *InfixExp) String() string {
 	var concatInfo bytes.Buffer
 
 	concatInfo.WriteString("(" + i.Left.String() + " " + i.Operator + " " + i.Right.String() + ")")
-	fmt.Println("infix : ", concatInfo.String())
+	// fmt.Println("infix : ", concatInfo.String())
 	return concatInfo.String()
 }

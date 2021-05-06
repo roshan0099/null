@@ -24,10 +24,8 @@ func main() {
 	// java := lexer.Crete(val)
 
 	input := `
-		!kkkk;
-		56 / 54 == 89 * 0;
-		return sal;
-		var hai = kaa;`
+		(((5+3)))*2;
+		`
 
 	// lex := lexer.Create(input)
 

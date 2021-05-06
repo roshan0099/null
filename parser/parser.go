@@ -46,6 +46,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.INT, parse.intgerParse)
 	parse.assignPrefix(token.MINUS, parse.parsePrefix)
 	parse.assignPrefix(token.EXCLAMATORY, parse.parsePrefix)
+	parse.assignPrefix(token.LBRACKET, parse.parseGroupExp)
 
 	parse.infixParse = make(map[string]infixFuncs)
 	parse.assignInfix(token.PLUS, parse.parseInfix)
@@ -101,7 +102,6 @@ func (p *Parser) ParseStat() ast.Statement {
 		return p.ParseReturn()
 
 	default:
-		fmt.Println("hello : ", p.curToken)
 		return p.ParseExpressionStmt()
 		// fmt.Println("hello : ", p.curToken)
 		// return nil
@@ -227,7 +227,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	if p.peekTokenCheck(token.SEMICOLON) {
 		p.rollToken()
 	}
-	fmt.Println("this is Parse expression statemte : ", prgrmStmt)
+
 	return prgrmStmt
 
 }
@@ -244,7 +244,7 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 	leftexp := prefix()
 
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
-		fmt.Println("this is the order  : ", p.nextPrecedence())
+
 		operator, ok := p.infixParse[p.peekToken.Type]
 
 		if !ok {
@@ -252,11 +252,12 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 		}
 
 		p.rollToken()
+
 		leftexp = operator(leftexp)
 
 		//yet to complete
 	}
-	fmt.Println("this is the parsed exp : ", leftexp)
+
 	return leftexp
 }
 
@@ -298,7 +299,7 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 	rightStatement := p.ParsingExpression(presentPrecedence)
 
 	infixExp.Right = rightStatement
-	fmt.Println("this is infix inside", infixExp, " ---%% ", infixExp.Left)
+
 	return infixExp
 }
 
@@ -313,8 +314,22 @@ func (p *Parser) parsePrefix() ast.Expression {
 	rightStmt := p.ParsingExpression(GENERAL)
 
 	prefixStmt.RightExp = rightStmt
-	fmt.Println("this is => ", prefixStmt.Operator, prefixStmt.RightExp.String())
+
 	return prefixStmt
+}
+
+func (p *Parser) parseGroupExp() ast.Expression {
+
+	p.rollToken()
+
+	grpExp := p.ParsingExpression(GENERAL)
+
+	//the curtoken gets rolled over to ) while checking this ocndition soley
+	if !p.expectingToken(token.RBRACKET) {
+		return nil
+	}
+
+	return grpExp
 }
 
 func (p *Parser) nextPrecedence() int {
