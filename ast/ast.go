@@ -205,7 +205,23 @@ func (I *IfStatement) TokenLiteral() string {
 func (I *IfStatement) expressionNode() {}
 
 func (I *IfStatement) String() string {
-	return "under work"
+
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString("if" + " ( ")
+
+	concatInfo.WriteString(I.Condition.String() + ")")
+
+	concatInfo.WriteString(I.Body.String())
+
+	if I.ElseBody == nil {
+		return concatInfo.String()
+	}
+
+	concatInfo.WriteString("else" + "{" + I.ElseBody.String() + "}")
+
+	return concatInfo.String()
+
 }
 
 type BodyStatement struct {

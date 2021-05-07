@@ -23,6 +23,8 @@ const (
 
 	LBRACKET    = "("
 	RBRACKET    = ")"
+	LCURLYBRAC  = "{"
+	RCURLYBRAC  = "}"
 	EXCLAMATORY = "!"
 	EQUAL       = "=="
 	NEQUAL      = "!="

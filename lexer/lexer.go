@@ -148,6 +148,12 @@ func (lex *Lexer) Identify() token.Token {
 	case '/':
 		info = identifyingTokens(token.DIVIDE, lex.currentPoint)
 
+	case '{':
+		info = identifyingTokens(token.LCURLYBRAC, lex.currentPoint)
+
+	case '}':
+		info = identifyingTokens(token.RCURLYBRAC, lex.currentPoint)
+
 	case 0:
 		info.Type = "END"
 		info.Value = token.EOF

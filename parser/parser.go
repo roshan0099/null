@@ -336,6 +336,48 @@ func (p *Parser) parseGroupExp() ast.Expression {
 	return grpExp
 }
 
+//IF EXPRESSION PARSING
+
+func (p *Parser) ifExpression() ast.Expression {
+	ifStmt := &ast.IfStatement{
+		Token: p.curToken,
+	}
+
+	p.rollToken()
+
+	if !p.expectingToken(token.LBRACKET) {
+		return nil
+	}
+
+	ifStmt.Condition = p.ParsingExpression(GENERAL)
+
+	ifStmt.Body = p.ifStatementBody()
+
+	return ifStmt
+}
+
+func (p *Parser) ifStatementBody() *ast.BodyStatement {
+	body := &ast.BodyStatement{
+		Token: p.curToken,
+	}
+
+	body.Statement = []ast.Statement{}
+
+	for !p.presentToken(token.RCURLYBRAC) {
+		bodyStmt := p.ParseStat()
+
+		if bodyStmt != nil {
+			body.Statement = append(body.Statement, bodyStmt)
+		}
+
+		p.rollToken()
+	}
+
+	return body
+}
+
+/////////
+
 func (p *Parser) booleanCheck() ast.Expression {
 	return &ast.BooleanValue{
 		Token: p.curToken,
@@ -346,6 +388,10 @@ func (p *Parser) booleanCheck() ast.Expression {
 //func to check if the token is a bool (true/false)
 func (p *Parser) boolcheckHelper(evalBool string) bool {
 	return evalBool == token.TRUE
+}
+
+func (p *Parser) presentToken(tokenCheck string) bool {
+	return p.curToken.Type == tokenCheck
 }
 
 func (p *Parser) nextPrecedence() int {
