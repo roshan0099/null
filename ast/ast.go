@@ -178,3 +178,56 @@ func (i *InfixExp) String() string {
 	// fmt.Println("infix : ", concatInfo.String())
 	return concatInfo.String()
 }
+
+type BooleanValue struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *BooleanValue) expressionNode()      {}
+func (b *BooleanValue) TokenLiteral() string { return b.Token.Value }
+func (b *BooleanValue) String() string {
+
+	return b.Token.Value
+}
+
+type IfStatement struct {
+	Token     token.Token
+	Condition Expression
+	Body      *BodyStatement
+	ElseBody  *BodyStatement
+}
+
+func (I *IfStatement) TokenLiteral() string {
+	return I.Token.Value
+}
+
+func (I *IfStatement) expressionNode() {}
+
+func (I *IfStatement) String() string {
+	return "under work"
+}
+
+type BodyStatement struct {
+	Token     token.Token
+	Statement []Statement
+}
+
+func (b *BodyStatement) TokenLiteral() string {
+	return b.Token.Value
+}
+
+func (b *BodyStatement) statementNode() {}
+
+func (b *BodyStatement) String() string {
+
+	var concatInfo bytes.Buffer
+
+	for _, val := range b.Statement {
+
+		concatInfo.WriteString(val.String())
+
+	}
+
+	return concatInfo.String()
+}

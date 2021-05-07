@@ -27,6 +27,10 @@ const (
 	EQUAL       = "=="
 	NEQUAL      = "!="
 
+	//boolean
+	TRUE  = "TRUE"
+	FALSE = "FALSE"
+
 	//delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
@@ -37,12 +41,17 @@ const (
 	VAR = "VAR"
 
 	RETURN = "RETURN"
+
+	IF = "IF"
 )
 
 var keywords = map[string]string{
 	"cout":   COUT,
 	"var":    VAR,
 	"return": RETURN,
+	"true":   TRUE,
+	"false":  FALSE,
+	"if":     IF,
 }
 
 func FindKey(word string) string {

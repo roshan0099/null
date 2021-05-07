@@ -24,7 +24,9 @@ func main() {
 	// java := lexer.Crete(val)
 
 	input := `
-		(((5+3)))*2;
+		
+		var rosh = 89;
+		5+3*2 == true;
 		`
 
 	// lex := lexer.Create(input)

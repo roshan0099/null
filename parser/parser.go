@@ -47,6 +47,8 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.MINUS, parse.parsePrefix)
 	parse.assignPrefix(token.EXCLAMATORY, parse.parsePrefix)
 	parse.assignPrefix(token.LBRACKET, parse.parseGroupExp)
+	parse.assignPrefix(token.TRUE, parse.booleanCheck)
+	parse.assignPrefix(token.FALSE, parse.booleanCheck)
 
 	parse.infixParse = make(map[string]infixFuncs)
 	parse.assignInfix(token.PLUS, parse.parseInfix)
@@ -79,7 +81,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		parseStat := p.ParseStat()
 		if parseStat != nil {
-
+			fmt.Println(">> ", parseStat)
 			program.Statements = append(program.Statements, parseStat)
 		}
 		p.rollToken()
@@ -111,6 +113,8 @@ func (p *Parser) ParseStat() ast.Statement {
 
 //func to parse statement that starts with var keyword
 func (p *Parser) ParseVar() *ast.VarStmt {
+
+	fmt.Println("curent token : ", p.curToken)
 
 	VarParse := &ast.VarStmt{Token: p.curToken}
 
@@ -221,7 +225,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	prgrmStmt := &ast.ParseExp{
 		Token: p.curToken,
 	}
-
+	fmt.Println("this is exp", p.curToken)
 	prgrmStmt.Exp = p.ParsingExpression(GENERAL)
 
 	if p.peekTokenCheck(token.SEMICOLON) {
@@ -330,6 +334,18 @@ func (p *Parser) parseGroupExp() ast.Expression {
 	}
 
 	return grpExp
+}
+
+func (p *Parser) booleanCheck() ast.Expression {
+	return &ast.BooleanValue{
+		Token: p.curToken,
+		Value: p.boolcheckHelper(p.curToken.Type),
+	}
+}
+
+//func to check if the token is a bool (true/false)
+func (p *Parser) boolcheckHelper(evalBool string) bool {
+	return evalBool == token.TRUE
 }
 
 func (p *Parser) nextPrecedence() int {
