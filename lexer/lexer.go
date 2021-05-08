@@ -155,7 +155,7 @@ func (lex *Lexer) Identify() token.Token {
 		info = identifyingTokens(token.RCURLYBRAC, lex.currentPoint)
 
 	case 0:
-		info.Type = "END"
+		info.Type = "EOF"
 		info.Value = token.EOF
 
 	default:

@@ -44,7 +44,8 @@ const (
 
 	RETURN = "RETURN"
 
-	IF = "IF"
+	IF   = "IF"
+	ELSE = "ELSE"
 )
 
 var keywords = map[string]string{
@@ -54,6 +55,7 @@ var keywords = map[string]string{
 	"true":   TRUE,
 	"false":  FALSE,
 	"if":     IF,
+	"else":   ELSE,
 }
 
 func FindKey(word string) string {

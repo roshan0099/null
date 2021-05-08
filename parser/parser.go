@@ -49,6 +49,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.LBRACKET, parse.parseGroupExp)
 	parse.assignPrefix(token.TRUE, parse.booleanCheck)
 	parse.assignPrefix(token.FALSE, parse.booleanCheck)
+	parse.assignPrefix(token.IF, parse.ifExpression)
 
 	parse.infixParse = make(map[string]infixFuncs)
 	parse.assignInfix(token.PLUS, parse.parseInfix)
@@ -232,6 +233,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 		p.rollToken()
 	}
 
+	fmt.Println("prgrms prae expression returning : ", prgrmStmt)
 	return prgrmStmt
 
 }
@@ -262,6 +264,7 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 		//yet to complete
 	}
 
+	fmt.Println("this is what parsing exp return (267) : ", leftexp)
 	return leftexp
 }
 
@@ -325,7 +328,7 @@ func (p *Parser) parsePrefix() ast.Expression {
 func (p *Parser) parseGroupExp() ast.Expression {
 
 	p.rollToken()
-
+	fmt.Println("hey this is grouped exp ")
 	grpExp := p.ParsingExpression(GENERAL)
 
 	//the curtoken gets rolled over to ) while checking this ocndition soley
@@ -333,25 +336,51 @@ func (p *Parser) parseGroupExp() ast.Expression {
 		return nil
 	}
 
+	fmt.Println("final result #####################", grpExp)
 	return grpExp
 }
 
 //IF EXPRESSION PARSING
 
 func (p *Parser) ifExpression() ast.Expression {
+
+	fmt.Println("got into if yaar")
 	ifStmt := &ast.IfStatement{
 		Token: p.curToken,
 	}
 
-	p.rollToken()
-
 	if !p.expectingToken(token.LBRACKET) {
 		return nil
 	}
-
+	fmt.Println("current token in if stmt  : ", p.curToken)
 	ifStmt.Condition = p.ParsingExpression(GENERAL)
 
+	fmt.Println("condition in if stmt  : ", ifStmt.Condition)
+
+	// if !p.expectingToken(token.RBRACKET) {
+	// 	return nil
+	// }
+
+	if !p.expectingToken(token.LCURLYBRAC) {
+		return nil
+	}
+	fmt.Println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
 	ifStmt.Body = p.ifStatementBody()
+	fmt.Println("this is if :  ", ifStmt.Body)
+
+	if p.presentToken(token.ELSE) {
+
+		fmt.Println("this is else")
+		if !p.expectingToken(token.LCURLYBRAC) {
+			return nil
+		}
+
+		elseBodyStmt := p.ifStatementBody()
+
+		ifStmt.ElseBody = elseBodyStmt
+
+		return ifStmt
+	}
 
 	return ifStmt
 }
@@ -363,7 +392,7 @@ func (p *Parser) ifStatementBody() *ast.BodyStatement {
 
 	body.Statement = []ast.Statement{}
 
-	for !p.presentToken(token.RCURLYBRAC) {
+	for !p.presentToken(token.RCURLYBRAC) && !p.presentToken(token.EOF) {
 		bodyStmt := p.ParseStat()
 
 		if bodyStmt != nil {

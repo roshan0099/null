@@ -24,9 +24,9 @@ func main() {
 	// java := lexer.Crete(val)
 
 	input := `
-		
-		var rosh = 89;
-		5+3*2 == true;
+		if (5+3){
+			var rust = 43;
+		}
 		`
 
 	// lex := lexer.Create(input)
@@ -35,7 +35,7 @@ func main() {
 	parse := parser.New(lex)
 	// err := parse.Err
 	sam := *parse.ParseProgram()
-
+	fmt.Println("this is pever : ", sam.Statements[0])
 	// for tok := lex.Identify(); tok.Value != token.EOF; tok = lex.Identify() {
 	// 	fmt.Printf("%+v\n", tok)
 	// }
@@ -44,11 +44,11 @@ func main() {
 	// fmt.Println("hey meite : ", sam.Statements[1].String(), err())
 	// fmt.Println("=> ", sam.Statements[0].(*ast.VarStmt).Name)
 	fmt.Println("statement : ", sam)
-	for index, val := range sam.Statements {
+	// for index, val := range sam.Statements {
 
-		// 	// fmt.Println("+> ", err())
-		fmt.Println(index, " -- -- -- ", val.String())
-	}
+	// 	// 	// fmt.Println("+> ", err())
+	// 	fmt.Println(index, " -- -- -- ", val.String())
+	// }
 
 	// for {
 	// 	tok := lex.Identify()

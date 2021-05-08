@@ -208,11 +208,11 @@ func (I *IfStatement) String() string {
 
 	var concatInfo bytes.Buffer
 
-	concatInfo.WriteString("if" + " ( ")
+	concatInfo.WriteString("if")
 
-	concatInfo.WriteString(I.Condition.String() + ")")
+	concatInfo.WriteString(I.Condition.String() + "{")
 
-	concatInfo.WriteString(I.Body.String())
+	concatInfo.WriteString(I.Body.String() + "}")
 
 	if I.ElseBody == nil {
 		return concatInfo.String()
