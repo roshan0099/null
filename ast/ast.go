@@ -64,7 +64,7 @@ func (v *VarStmt) TokenLiteral() string {
 func (v *VarStmt) String() string {
 	var concatInfo bytes.Buffer
 
-	concatInfo.WriteString(v.TokenLiteral() + " " + v.Name.String())
+	concatInfo.WriteString(v.TokenLiteral() + " " + v.Name.String() + " ")
 
 	if v.Value != nil {
 		concatInfo.WriteString(v.Value.String())

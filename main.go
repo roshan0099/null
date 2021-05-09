@@ -27,6 +27,8 @@ func main() {
 		if (5+3){
 			var rust = 43;
 		}
+
+		return abhaya;
 		`
 
 	// lex := lexer.Create(input)

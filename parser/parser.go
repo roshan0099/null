@@ -128,35 +128,16 @@ func (p *Parser) ParseVar() *ast.VarStmt {
 
 	// p.rollToken()
 
-	if !p.expectingToken(token.ASSIGN) {
+	if p.peekTokenCheck(token.SEMICOLON) {
+		return VarParse
+	}
 
+	if !p.expectingToken(token.ASSIGN) {
 		return nil
 	}
 
-	// if p.peekToken.Type != token.COMMA {
-	for p.peekToken.Type != token.SEMICOLON {
-		// fmt.Println(" this is 21 : ", p.peekToken)
-		p.rollToken()
-		if p.curToken.Type == token.VAR {
+	VarParse.Value = p.ParsingExpression(GENERAL)
 
-			// fmt.Println("return 1")
-
-			p.ErrorValidity(token.SEMICOLON)
-			return nil
-		}
-
-		VarParse.Value = &ast.Identifier{
-			Token: p.curToken,
-		}
-
-		// p.rollToken()
-	}
-
-	// } else {
-	// 	fmt.Println("hmm else aayi ")
-	// 	return nil
-	// }
-	// fmt.Println("parse var thing 3 : ", VarParse.Value)
 	return VarParse
 
 }
@@ -200,13 +181,13 @@ func (p *Parser) ParseReturn() *ast.ReturnStmt {
 	}
 
 	//interim
-	for !p.peekTokenCheck(token.SEMICOLON) {
-		p.rollToken()
 
-		returnStmt.Exp = &ast.Identifier{
-			Token: p.curToken,
-		}
+	if p.peekTokenCheck(token.SEMICOLON) {
+		return returnStmt
 	}
+	p.rollToken()
+
+	returnStmt.Exp = p.ParsingExpression(GENERAL)
 
 	return returnStmt
 }
