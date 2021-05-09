@@ -82,7 +82,6 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		parseStat := p.ParseStat()
 		if parseStat != nil {
-			fmt.Println(">> ", parseStat)
 			program.Statements = append(program.Statements, parseStat)
 		}
 		p.rollToken()
@@ -114,8 +113,6 @@ func (p *Parser) ParseStat() ast.Statement {
 
 //func to parse statement that starts with var keyword
 func (p *Parser) ParseVar() *ast.VarStmt {
-
-	fmt.Println("curent token : ", p.curToken)
 
 	VarParse := &ast.VarStmt{Token: p.curToken}
 
@@ -233,7 +230,6 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 		p.rollToken()
 	}
 
-	fmt.Println("prgrms prae expression returning : ", prgrmStmt)
 	return prgrmStmt
 
 }
@@ -264,7 +260,6 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 		//yet to complete
 	}
 
-	fmt.Println("this is what parsing exp return (267) : ", leftexp)
 	return leftexp
 }
 
@@ -328,7 +323,7 @@ func (p *Parser) parsePrefix() ast.Expression {
 func (p *Parser) parseGroupExp() ast.Expression {
 
 	p.rollToken()
-	fmt.Println("hey this is grouped exp ")
+
 	grpExp := p.ParsingExpression(GENERAL)
 
 	//the curtoken gets rolled over to ) while checking this ocndition soley
@@ -336,7 +331,6 @@ func (p *Parser) parseGroupExp() ast.Expression {
 		return nil
 	}
 
-	fmt.Println("final result #####################", grpExp)
 	return grpExp
 }
 
@@ -344,7 +338,6 @@ func (p *Parser) parseGroupExp() ast.Expression {
 
 func (p *Parser) ifExpression() ast.Expression {
 
-	fmt.Println("got into if yaar")
 	ifStmt := &ast.IfStatement{
 		Token: p.curToken,
 	}
@@ -352,10 +345,8 @@ func (p *Parser) ifExpression() ast.Expression {
 	if !p.expectingToken(token.LBRACKET) {
 		return nil
 	}
-	fmt.Println("current token in if stmt  : ", p.curToken)
-	ifStmt.Condition = p.ParsingExpression(GENERAL)
 
-	fmt.Println("condition in if stmt  : ", ifStmt.Condition)
+	ifStmt.Condition = p.ParsingExpression(GENERAL)
 
 	// if !p.expectingToken(token.RBRACKET) {
 	// 	return nil
@@ -364,13 +355,10 @@ func (p *Parser) ifExpression() ast.Expression {
 	if !p.expectingToken(token.LCURLYBRAC) {
 		return nil
 	}
-	fmt.Println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+
 	ifStmt.Body = p.ifStatementBody()
-	fmt.Println("this is if :  ", ifStmt.Body)
 
 	if p.presentToken(token.ELSE) {
-
-		fmt.Println("this is else")
 		if !p.expectingToken(token.LCURLYBRAC) {
 			return nil
 		}
