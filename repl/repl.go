@@ -3,6 +3,9 @@ package repl
 import (
 	"bufio"
 	"fmt"
+	"null/evaluation"
+	"null/lexer"
+	"null/parser"
 )
 
 func Begin(inPoint *bufio.Scanner) {
@@ -16,7 +19,14 @@ func Begin(inPoint *bufio.Scanner) {
 
 		scanLine := inPoint.Text()
 
-		fmt.Println(scanLine)
+		lex := lexer.Create(scanLine)
+		parse := parser.New(lex)
+
+		prgm := parse.ParseProgram()
+
+		eval := evaluation.Eval(prgm)
+
+		fmt.Println("koppam ", eval.Inspect())
 
 	}
 }

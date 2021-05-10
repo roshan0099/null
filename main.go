@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	_ "null/ast"
 	_ "null/lexer"
 	_ "null/parser"
 	"null/repl"
@@ -31,18 +32,14 @@ func main() {
 	// java := lexer.Crete(val)
 
 	// input := `
-	// if (5+3){
-	// 	var rust = 43;
-	// }
-
-	// return abhaya;
+	// var sam = 6;
 	// `
 
-	// lex := lexer.Create(input)
+	// // lex := lexer.Create(input)
 
 	// lex := lexer.Create(input)
 	// parse := parser.New(lex)
-	// err := parse.Err
+	// // err := parse.Err
 	// sam := *parse.ParseProgram()
 	// fmt.Println("this is pever : ", sam.Statements[0])
 	// for tok := lex.Identify(); tok.Value != token.EOF; tok = lex.Identify() {
@@ -53,10 +50,22 @@ func main() {
 	// fmt.Println("hey meite : ", sam.Statements[1].String(), err())
 	// fmt.Println("=> ", sam.Statements[0].(*ast.VarStmt).Name)
 	// fmt.Println("statement : ", sam)
-	// for index, val := range sam.Statements {
 
-	// 	// 	// fmt.Println("+> ", err())
-	// 	fmt.Println(index, " -- -- -- ", val.String())
+	// for index, val := range sam.Statements {
+	// 	fmt.Println("this is inside loop : ", val)
+	// 	// 	// 	// fmt.Println("+> ", err())
+	// 	switch ch := val.(type) {
+	// 	case *ast.ParseExp:
+	// 		fmt.Println(index, " this is ", ch.String())
+
+	// 	case *ast.VarStmt:
+	// 		fmt.Println(index, " this is ", ch.Value)
+
+	// 	default:
+	// 		fmt.Println("ngaaa ")
+
+	// 	}
+
 	// }
 
 	// for {
