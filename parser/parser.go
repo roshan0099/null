@@ -204,7 +204,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	prgrmStmt := &ast.ParseExp{
 		Token: p.curToken,
 	}
-	fmt.Println("this is exp", p.curToken)
+	// fmt.Println("this is exp", p.curToken)
 	prgrmStmt.Exp = p.ParsingExpression(GENERAL)
 
 	if p.peekTokenCheck(token.SEMICOLON) {

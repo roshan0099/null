@@ -26,7 +26,7 @@ func Begin(inPoint *bufio.Scanner) {
 
 		eval := evaluation.Eval(prgm)
 
-		fmt.Println("koppam ", eval.Inspect())
+		fmt.Println(eval.Inspect())
 
 	}
 }
