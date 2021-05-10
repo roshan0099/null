@@ -1,9 +1,9 @@
 package evaluation
 
 import (
-	_ "fmt"
 	"null/ast"
 	"null/object"
+	"null/token"
 )
 
 //creating types just to prevent from copies being made everytime bool is used
@@ -36,12 +36,18 @@ func Eval(typeStruct ast.Node) object.Object {
 		rightExp := Eval(ch.RightExp)
 		return prefixEval(ch.Operator, rightExp)
 
+	case *ast.InfixExp:
+		leftExp := Eval(ch.Left)
+		rightExp := Eval(ch.Right)
+		return evaluateInfix(leftExp, rightExp, ch.Operator)
+
 	case *ast.IntegralParse:
 
 		return &object.Integer{
 			Val: ch.Val,
 		}
 	}
+
 	return nil
 }
 
@@ -65,9 +71,29 @@ func settingBoolean(val bool) object.Object {
 	}
 }
 
+func evaluateInfix(leftExp, rightExp object.Object, operator string) object.Object {
+
+	leftNumb, rightNumb := leftExp.(*object.Integer).Val, rightExp.(*object.Integer).Val
+	if leftExp.Type() == "INTEGER" && rightExp.Type() == "INTEGER" {
+		switch operator {
+		case token.PLUS:
+			return &object.Integer{Val: leftNumb + rightNumb}
+
+		}
+	}
+	return nil
+}
+
 func prefixEval(operator string, rightExp object.Object) object.Object {
 
 	if operator == "!" {
+		switch rightExp.Inspect() {
+		case "false":
+			return TRUE
+		case "true":
+			return FALSE
+		}
+	} else if operator == "-" {
 		switch rightExp.Inspect() {
 		case "false":
 			return TRUE
