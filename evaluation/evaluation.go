@@ -37,6 +37,7 @@ func Eval(typeStruct ast.Node) object.Object {
 		return prefixEval(ch.Operator, rightExp)
 
 	case *ast.InfixExp:
+
 		leftExp := Eval(ch.Left)
 		rightExp := Eval(ch.Right)
 		return evaluateInfix(leftExp, rightExp, ch.Operator)
@@ -79,6 +80,23 @@ func evaluateInfix(leftExp, rightExp object.Object, operator string) object.Obje
 		case token.PLUS:
 			return &object.Integer{Val: leftNumb + rightNumb}
 
+		case token.MINUS:
+			return &object.Integer{Val: leftNumb - rightNumb}
+
+		case token.DIVIDE:
+			return &object.Integer{Val: leftNumb / rightNumb}
+
+		case token.MULTI:
+			return &object.Integer{Val: leftNumb * rightNumb}
+
+		case token.EQUAL:
+			return settingBoolean(leftNumb == rightNumb)
+
+		case token.GREATER:
+			return settingBoolean(leftNumb > rightNumb)
+
+		case token.LESSER:
+			return settingBoolean(leftNumb < rightNumb)
 		}
 	}
 	return nil

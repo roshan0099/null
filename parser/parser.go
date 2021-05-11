@@ -58,6 +58,8 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignInfix(token.DIVIDE, parse.parseInfix)
 	parse.assignInfix(token.EQUAL, parse.parseInfix)
 	parse.assignInfix(token.NEQUAL, parse.parseInfix)
+	parse.assignInfix(token.LESSER, parse.parseInfix)
+	parse.assignInfix(token.GREATER, parse.parseInfix)
 
 	//to set both cur and peek
 	parse.rollToken()

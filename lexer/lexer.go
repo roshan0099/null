@@ -154,6 +154,12 @@ func (lex *Lexer) Identify() token.Token {
 	case '}':
 		info = identifyingTokens(token.RCURLYBRAC, lex.currentPoint)
 
+	case '>':
+		info = identifyingTokens(token.GREATER, lex.currentPoint)
+
+	case '<':
+		info = identifyingTokens(token.LESSER, lex.currentPoint)
+
 	case 0:
 		info.Type = "EOF"
 		info.Value = token.EOF
