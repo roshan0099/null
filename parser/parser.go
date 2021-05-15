@@ -340,11 +340,11 @@ func (p *Parser) ifExpression() ast.Expression {
 
 	ifStmt.Body = p.ifStatementBody()
 
-	if p.presentToken(token.ELSE) {
+	if p.peekTokenCheck(token.ELSE) {
+		p.rollToken()
 		if !p.expectingToken(token.LCURLYBRAC) {
 			return nil
 		}
-
 		elseBodyStmt := p.ifStatementBody()
 
 		ifStmt.ElseBody = elseBodyStmt

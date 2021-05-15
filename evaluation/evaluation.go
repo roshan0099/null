@@ -1,6 +1,7 @@
 package evaluation
 
 import (
+	"fmt"
 	"null/ast"
 	"null/object"
 	"null/token"
@@ -42,6 +43,13 @@ func Eval(typeStruct ast.Node) object.Object {
 		rightExp := Eval(ch.Right)
 		return evaluateInfix(leftExp, rightExp, ch.Operator)
 
+	case *ast.IfStatement:
+		conditionBool := evaluateIf(ch.Condition, ch.Body, ch.ElseBody)
+		return conditionBool
+
+	case *ast.BodyStatement:
+		return evaluate(ch.Statement)
+
 	case *ast.IntegralParse:
 
 		return &object.Integer{
@@ -50,6 +58,31 @@ func Eval(typeStruct ast.Node) object.Object {
 	}
 
 	return nil
+}
+
+func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
+	elseBody *ast.BodyStatement) object.Object {
+
+	boolValue := Eval(condition)
+	var returnVal object.Object
+
+	switch boolValue {
+	case TRUE:
+		returnVal = Eval(body)
+
+	case FALSE:
+
+		if elseBody != nil {
+			returnVal = Eval(elseBody)
+			return returnVal
+		}
+		returnVal = &object.Null{}
+
+	default:
+		fmt.Println("blaaaaahhhhh")
+	}
+
+	return returnVal
 }
 
 func evaluate(stmt []ast.Statement) object.Object {

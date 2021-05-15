@@ -18,7 +18,9 @@ func Begin(inPoint *bufio.Scanner) {
 		_ = inPoint.Scan()
 
 		scanLine := inPoint.Text()
-
+		if scanLine == "bye" {
+			break
+		}
 		lex := lexer.Create(scanLine)
 		parse := parser.New(lex)
 

@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	_ "null/ast"
 	_ "null/lexer"
 	_ "null/parser"
 	"null/repl"
@@ -32,16 +31,19 @@ func main() {
 	// java := lexer.Crete(val)
 
 	// input := `
-	// var sam = 6;
+	// if(1==0){
+	// 	10+1;
+	// }
+	// var sam = 2;
 	// `
 
 	// // lex := lexer.Create(input)
 
 	// lex := lexer.Create(input)
 	// parse := parser.New(lex)
-	// // err := parse.Err
+	// // // err := parse.Err
 	// sam := *parse.ParseProgram()
-	// fmt.Println("this is pever : ", sam.Statements[0])
+	// fmt.Println("this is pever : ", sam)
 	// for tok := lex.Identify(); tok.Value != token.EOF; tok = lex.Identify() {
 	// 	fmt.Printf("%+v\n", tok)
 	// }
@@ -52,7 +54,8 @@ func main() {
 	// fmt.Println("statement : ", sam)
 
 	// for index, val := range sam.Statements {
-	// 	fmt.Println("this is inside loop : ", val)
+	// 	fmt.Println("this is inside loop : ", index, " ---- ", val)
+	// }
 	// 	// 	// 	// fmt.Println("+> ", err())
 	// 	switch ch := val.(type) {
 	// 	case *ast.ParseExp:
