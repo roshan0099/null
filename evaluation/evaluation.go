@@ -75,7 +75,18 @@ func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
 	val, _ := env.GetEnv(choice.String())
 
+	if val == nil {
+		return ErrorMsgUpdate("bru its undefind alright ?")
+	}
+
 	return val
+}
+
+func ErrorMsgUpdate(message string) object.Object {
+
+	return &object.Error{
+		ErrorMsg: message,
+	}
 }
 
 func StoreVal(name *ast.Identifier, exp object.Object, env *object.Env) {
