@@ -17,41 +17,52 @@ var (
 	}
 )
 
-func Eval(typeStruct ast.Node) object.Object {
+func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	switch ch := typeStruct.(type) {
 
 	case *ast.Program:
 
-		return evaluate(ch.Statements)
+		return evaluate(ch.Statements, env)
 
 	case *ast.ParseExp:
-
+		// fmt.Println("we parse")
+		// fmt.Println(ch.Exp)
 		// fmt.Println("this is inside parse exp : ", ch.Token.Type, " -- ", ch.Exp)
-		return Eval(ch.Exp)
+		return Eval(ch.Exp, env)
 
 	case *ast.BooleanValue:
 		return settingBoolean(ch.Value)
 
 	case *ast.PrefixExp:
-		rightExp := Eval(ch.RightExp)
+		rightExp := Eval(ch.RightExp, env)
 		return prefixEval(ch.Operator, rightExp)
 
 	case *ast.InfixExp:
 
-		leftExp := Eval(ch.Left)
-		rightExp := Eval(ch.Right)
+		leftExp := Eval(ch.Left, env)
+		rightExp := Eval(ch.Right, env)
 		return evaluateInfix(leftExp, rightExp, ch.Operator)
 
 	case *ast.IfStatement:
-		conditionBool := evaluateIf(ch.Condition, ch.Body, ch.ElseBody)
+		conditionBool := evaluateIf(ch.Condition, ch.Body, ch.ElseBody, env)
 		return conditionBool
 
+	case *ast.VarStmt:
+		// fmt.Println("it's here", ch.Token.Type, ch.Name, ch.Value)
+		rightExp := Eval(ch.Value, env)
+
+		StoreVal(ch.Name, rightExp, env)
+
 	case *ast.BodyStatement:
-		return evaluate(ch.Statement)
+		return evaluate(ch.Statement, env)
+
+	case *ast.Identifier:
+		// fmt.Println("we are identifiers ", ch)
+		return checkIdentifier(ch, env)
 
 	case *ast.IntegralParse:
-
+		// fmt.Println("we integer")
 		return &object.Integer{
 			Val: ch.Val,
 		}
@@ -60,20 +71,32 @@ func Eval(typeStruct ast.Node) object.Object {
 	return nil
 }
 
-func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
-	elseBody *ast.BodyStatement) object.Object {
+func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
-	boolValue := Eval(condition)
+	val, _ := env.GetEnv(choice.String())
+
+	return val
+}
+
+func StoreVal(name *ast.Identifier, exp object.Object, env *object.Env) {
+	// fmt.Println("this is whats inside exp  --->: ", name.Token.Value, exp.Inspect())
+	env.SetEnv(name.Token.Value, exp)
+}
+
+func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
+	elseBody *ast.BodyStatement, env *object.Env) object.Object {
+
+	boolValue := Eval(condition, env)
 	var returnVal object.Object
 
 	switch boolValue {
 	case TRUE:
-		returnVal = Eval(body)
+		returnVal = Eval(body, env)
 
 	case FALSE:
 
 		if elseBody != nil {
-			returnVal = Eval(elseBody)
+			returnVal = Eval(elseBody, env)
 			return returnVal
 		}
 		returnVal = &object.Null{}
@@ -85,15 +108,16 @@ func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
 	return returnVal
 }
 
-func evaluate(stmt []ast.Statement) object.Object {
+func evaluate(stmt []ast.Statement, env *object.Env) object.Object {
 
 	var result object.Object
 	// fmt.Println("this is stat : ", stmt)
 	for _, val := range stmt {
 		// fmt.Println("tis is inside evaluate  : ", val)
-		result = Eval(val)
+		result = Eval(val, env)
 
 	}
+
 	return result
 }
 

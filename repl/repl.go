@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"null/evaluation"
 	"null/lexer"
+	"null/object"
 	"null/parser"
 )
 
 func Begin(inPoint *bufio.Scanner) {
 
 	fmt.Println("R E P L ")
+
+	env := object.NewEnv()
 
 	for {
 
@@ -26,9 +29,11 @@ func Begin(inPoint *bufio.Scanner) {
 
 		prgm := parse.ParseProgram()
 
-		eval := evaluation.Eval(prgm)
-
-		fmt.Println(eval.Inspect())
-
+		eval := evaluation.Eval(prgm, env)
+		if eval == nil {
+			continue
+		} else {
+			fmt.Println(eval.Inspect())
+		}
 	}
 }

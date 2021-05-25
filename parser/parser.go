@@ -137,6 +137,7 @@ func (p *Parser) ParseVar() *ast.VarStmt {
 	if !p.expectingToken(token.ASSIGN) {
 		return nil
 	}
+	p.rollToken()
 
 	VarParse.Value = p.ParsingExpression(GENERAL)
 
@@ -247,7 +248,6 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 
 //for non integer expression
 func (p *Parser) identifierParse() ast.Expression {
-
 	return &ast.Identifier{Token: p.curToken}
 }
 
