@@ -25,3 +25,16 @@ func (e *Env) GetEnv(name string) (Object, bool) {
 
 	return val, ok
 }
+
+func (e *Env) ChangeVal(name string, elm Object) bool {
+
+	_, ok := e.store[name]
+
+	if ok {
+		e.store[name] = elm
+
+		return ok
+	}
+
+	return ok
+}

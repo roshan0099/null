@@ -12,6 +12,8 @@ import (
 func main() {
 
 	// reader := bufio.NewReader(os.Stdin)
+
+	//////////////////////////////////////
 	fmt.Println("--- NULL ---")
 
 	read := os.Stdin
@@ -19,6 +21,8 @@ func main() {
 	scan := bufio.NewScanner(read)
 
 	repl.Begin(scan)
+
+	///////////////////////////////////////
 
 	// val, err := reader.ReadString('\n')
 
@@ -31,17 +35,14 @@ func main() {
 	// java := lexer.Crete(val)
 
 	// input := `
-	// if(1==0){
-	// 	10+1;
-	// }
-	// var sam = 2;
+	// sam = 2
 	// `
 
 	// // lex := lexer.Create(input)
 
 	// lex := lexer.Create(input)
 	// parse := parser.New(lex)
-	// // // err := parse.Err
+	// // // // err := parse.Err
 	// sam := *parse.ParseProgram()
 	// fmt.Println("this is pever : ", sam)
 	// for tok := lex.Identify(); tok.Value != token.EOF; tok = lex.Identify() {

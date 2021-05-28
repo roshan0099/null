@@ -6,6 +6,7 @@ import (
 
 var Precedence = map[string]int{
 
+	token.ASSIGN:  ASSIGN,
 	token.PLUS:    PLUSMINUS,
 	token.MINUS:   PLUSMINUS,
 	token.GREATER: LESSGREAT,

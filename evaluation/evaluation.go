@@ -26,7 +26,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return evaluate(ch.Statements, env)
 
 	case *ast.ParseExp:
-		// fmt.Println("we parse")
+		fmt.Println("we parse", ch)
 		// fmt.Println(ch.Exp)
 		// fmt.Println("this is inside parse exp : ", ch.Token.Type, " -- ", ch.Exp)
 		return Eval(ch.Exp, env)
@@ -40,9 +40,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.InfixExp:
 
-		leftExp := Eval(ch.Left, env)
-		rightExp := Eval(ch.Right, env)
-		return evaluateInfix(leftExp, rightExp, ch.Operator)
+		return infixEvaluation(ch, env)
 
 	case *ast.IfStatement:
 		conditionBool := evaluateIf(ch.Condition, ch.Body, ch.ElseBody, env)
@@ -58,7 +56,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return evaluate(ch.Statement, env)
 
 	case *ast.Identifier:
-		// fmt.Println("we are identifiers ", ch)
+		fmt.Println("we are identifiers ", ch)
 		return checkIdentifier(ch, env)
 
 	case *ast.IntegralParse:
@@ -71,10 +69,46 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	return nil
 }
 
+func infixEvaluation(ch *ast.InfixExp, env *object.Env) object.Object {
+
+	if ch.Operator == token.ASSIGN {
+		fmt.Println("hey man : ", ch.Operator)
+		switch choice := ch.Left.(type) {
+
+		case *ast.Identifier:
+			fmt.Println("pooshi", choice)
+			rightExp := Eval(ch.Right, env)
+
+			ok := env.ChangeVal(choice.String(), rightExp)
+
+			if !ok {
+				return ErrorMsgUpdate("seems like the variable is not declared ")
+
+			}
+			return nil
+
+		default:
+
+			leftExp := Eval(ch.Left, env)
+			// fmt.Println("aavo meir")
+			fmt.Println("this is left exp bud ***** ", leftExp, ch.Left)
+			rightExp := Eval(ch.Right, env)
+			return evaluateInfix(leftExp, rightExp, ch.Operator, env)
+		}
+	}
+
+	leftExp := Eval(ch.Left, env)
+	// fmt.Println("aavo meir")
+	fmt.Println("this is left exp bud ***** ", leftExp, ch.Left)
+	rightExp := Eval(ch.Right, env)
+	return evaluateInfix(leftExp, rightExp, ch.Operator, env)
+
+}
+
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
-
+	fmt.Println("nammal identifierill ind ")
 	val, _ := env.GetEnv(choice.String())
-
+	fmt.Println("this is the balue i got  : >>>>>>>>>>", val)
 	if val == nil {
 		return ErrorMsgUpdate("bru its undefind alright ?")
 	}
@@ -140,7 +174,7 @@ func settingBoolean(val bool) object.Object {
 	}
 }
 
-func evaluateInfix(leftExp, rightExp object.Object, operator string) object.Object {
+func evaluateInfix(leftExp, rightExp object.Object, operator string, env *object.Env) object.Object {
 
 	leftNumb, rightNumb := leftExp.(*object.Integer).Val, rightExp.(*object.Integer).Val
 	if leftExp.Type() == "INTEGER" && rightExp.Type() == "INTEGER" {
@@ -165,6 +199,14 @@ func evaluateInfix(leftExp, rightExp object.Object, operator string) object.Obje
 
 		case token.LESSER:
 			return settingBoolean(leftNumb < rightNumb)
+
+		case token.ASSIGN:
+			fmt.Println(" ---> ", leftExp.Inspect(), " --- ", rightNumb, " --- ", env)
+			ok := env.ChangeVal(leftExp.Inspect(), rightExp)
+
+			if !ok {
+				return ErrorMsgUpdate("bruh variable not declared it seems")
+			}
 		}
 	}
 	return nil

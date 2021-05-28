@@ -11,6 +11,7 @@ import (
 const (
 	_ = iota
 	GENERAL
+	ASSIGN
 	EQUAL
 	LESSGREAT
 	PLUSMINUS
@@ -50,6 +51,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.TRUE, parse.booleanCheck)
 	parse.assignPrefix(token.FALSE, parse.booleanCheck)
 	parse.assignPrefix(token.IF, parse.ifExpression)
+	// parse.assignInfix(token.ASSIGN, parse.assignMarker)
 
 	parse.infixParse = make(map[string]infixFuncs)
 	parse.assignInfix(token.PLUS, parse.parseInfix)
@@ -60,6 +62,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignInfix(token.NEQUAL, parse.parseInfix)
 	parse.assignInfix(token.LESSER, parse.parseInfix)
 	parse.assignInfix(token.GREATER, parse.parseInfix)
+	parse.assignInfix(token.ASSIGN, parse.parseInfix)
 
 	//to set both cur and peek
 	parse.rollToken()
@@ -207,7 +210,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	prgrmStmt := &ast.ParseExp{
 		Token: p.curToken,
 	}
-	// fmt.Println("this is exp", p.curToken)
+	fmt.Println("this is exp", p.curToken)
 	prgrmStmt.Exp = p.ParsingExpression(GENERAL)
 
 	if p.peekTokenCheck(token.SEMICOLON) {
@@ -227,9 +230,9 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 	}
 
 	leftexp := prefix()
-
+	fmt.Println("before loop", p.curToken, " --- ", p.peekToken, " ------ ", p.nextPrecedence())
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
-
+		fmt.Println("haa inside for loop", p.peekToken)
 		operator, ok := p.infixParse[p.peekToken.Type]
 
 		if !ok {
