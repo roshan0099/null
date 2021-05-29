@@ -10,9 +10,9 @@ So far null is in its bare bones, it only has var declaration (which is just int
 
 ## Features
 
-[X] integer type
-[ ] string type
-[ ] loop
-[x] if - else condition
-[ ] if - else if
-[ ] Function
+- [X] integer type
+- [ ] string type
+- [ ] loop
+- [x] if - else condition
+- [ ] if - else if
+- [ ] Function
