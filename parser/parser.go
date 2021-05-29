@@ -210,7 +210,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	prgrmStmt := &ast.ParseExp{
 		Token: p.curToken,
 	}
-	fmt.Println("this is exp", p.curToken)
+	// fmt.Println("this is exp", p.curToken)
 	prgrmStmt.Exp = p.ParsingExpression(GENERAL)
 
 	if p.peekTokenCheck(token.SEMICOLON) {
@@ -230,9 +230,9 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 	}
 
 	leftexp := prefix()
-	fmt.Println("before loop", p.curToken, " --- ", p.peekToken, " ------ ", p.nextPrecedence())
+	// fmt.Println("before loop", p.curToken, " --- ", p.peekToken, " ------ ", p.nextPrecedence())
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
-		fmt.Println("haa inside for loop", p.peekToken)
+		// fmt.Println("haa inside for loop", p.peekToken)
 		operator, ok := p.infixParse[p.peekToken.Type]
 
 		if !ok {

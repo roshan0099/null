@@ -26,7 +26,6 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return evaluate(ch.Statements, env)
 
 	case *ast.ParseExp:
-		fmt.Println("we parse", ch)
 		// fmt.Println(ch.Exp)
 		// fmt.Println("this is inside parse exp : ", ch.Token.Type, " -- ", ch.Exp)
 		return Eval(ch.Exp, env)
@@ -56,7 +55,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return evaluate(ch.Statement, env)
 
 	case *ast.Identifier:
-		fmt.Println("we are identifiers ", ch)
+
 		return checkIdentifier(ch, env)
 
 	case *ast.IntegralParse:
@@ -69,14 +68,14 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	return nil
 }
 
+//function to check if the infix is just an expression or to change the value of a variable
 func infixEvaluation(ch *ast.InfixExp, env *object.Env) object.Object {
 
 	if ch.Operator == token.ASSIGN {
-		fmt.Println("hey man : ", ch.Operator)
+
 		switch choice := ch.Left.(type) {
 
 		case *ast.Identifier:
-			fmt.Println("pooshi", choice)
 			rightExp := Eval(ch.Right, env)
 
 			ok := env.ChangeVal(choice.String(), rightExp)
@@ -88,27 +87,22 @@ func infixEvaluation(ch *ast.InfixExp, env *object.Env) object.Object {
 			return nil
 
 		default:
-
-			leftExp := Eval(ch.Left, env)
-			// fmt.Println("aavo meir")
-			fmt.Println("this is left exp bud ***** ", leftExp, ch.Left)
-			rightExp := Eval(ch.Right, env)
-			return evaluateInfix(leftExp, rightExp, ch.Operator, env)
+			return ErrorMsgUpdate("Variable declaration not done right")
 		}
 	}
 
 	leftExp := Eval(ch.Left, env)
 	// fmt.Println("aavo meir")
-	fmt.Println("this is left exp bud ***** ", leftExp, ch.Left)
+
 	rightExp := Eval(ch.Right, env)
 	return evaluateInfix(leftExp, rightExp, ch.Operator, env)
 
 }
 
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
-	fmt.Println("nammal identifierill ind ")
+
 	val, _ := env.GetEnv(choice.String())
-	fmt.Println("this is the balue i got  : >>>>>>>>>>", val)
+
 	if val == nil {
 		return ErrorMsgUpdate("bru its undefind alright ?")
 	}
@@ -147,7 +141,7 @@ func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
 		returnVal = &object.Null{}
 
 	default:
-		fmt.Println("blaaaaahhhhh")
+		ErrorMsgUpdate("condition has some problems :( ")
 	}
 
 	return returnVal

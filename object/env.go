@@ -7,31 +7,31 @@ import (
 func NewEnv() *Env {
 	s := make(map[string]Object)
 	return &Env{
-		store: s,
+		Store: s,
 	}
 }
 
 type Env struct {
-	store map[string]Object
+	Store map[string]Object
 }
 
 func (e *Env) SetEnv(name string, obj Object) {
-	e.store[name] = obj
+	e.Store[name] = obj
 }
 
 func (e *Env) GetEnv(name string) (Object, bool) {
 
-	val, ok := e.store[name]
+	val, ok := e.Store[name]
 
 	return val, ok
 }
 
 func (e *Env) ChangeVal(name string, elm Object) bool {
 
-	_, ok := e.store[name]
+	_, ok := e.Store[name]
 
 	if ok {
-		e.store[name] = elm
+		e.Store[name] = elm
 
 		return ok
 	}
