@@ -59,7 +59,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return checkIdentifier(ch, env)
 
 	case *ast.IntegralParse:
-		// fmt.Println("we integer")
+
 		return &object.Integer{
 			Val: ch.Val,
 		}
