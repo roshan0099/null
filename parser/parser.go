@@ -108,6 +108,15 @@ func (p *Parser) ParseStat() ast.Statement {
 
 		return p.ParseReturn()
 
+	case token.WHILE:
+
+		// fmt.Println("kaaa")
+		// return &ast.Sample{
+		// 	SampleText: "blooo",
+		// }
+
+		return p.WhileStmt()
+
 	default:
 		return p.ParseExpressionStmt()
 		// fmt.Println("hello : ", p.curToken)
@@ -363,6 +372,8 @@ func (p *Parser) ifStatementBody() *ast.BodyStatement {
 		Token: p.curToken,
 	}
 
+	fmt.Println("------> ", body.Token)
+
 	body.Statement = []ast.Statement{}
 
 	for !p.presentToken(token.RCURLYBRAC) && !p.presentToken(token.EOF) {
@@ -420,4 +431,50 @@ func (p *Parser) assignPrefix(token string, function prefixFuncs) {
 
 func (p *Parser) assignInfix(token string, function infixFuncs) {
 	p.infixParse[token] = function
+}
+
+func (p *Parser) WhileStmt() *ast.LoopStmt {
+
+	fmt.Println("fuck ya biatch ")
+
+	whileStmt := &ast.LoopStmt{
+		Token: p.curToken,
+	}
+	fmt.Println("this si the current token 1  : ", p.curToken)
+	if !p.expectingToken(token.LBRACKET) {
+		fmt.Println(".....inside if : ", p.curToken)
+		return nil
+	}
+	fmt.Println("this si the current token 2 : ", p.curToken)
+	whileStmt.Condition = p.ParsingExpression(GENERAL)
+
+	fmt.Println("this si the current token 3 : ", p.curToken)
+
+	if !p.expectingToken(token.LCURLYBRAC) {
+		return nil
+	}
+	fmt.Println("hey")
+	whileStmt.Body = p.whileStmtBody()
+
+	fmt.Println(whileStmt)
+	return whileStmt
+}
+
+func (p *Parser) whileStmtBody() *ast.BodyStatement {
+
+	bodyWhile := &ast.BodyStatement{
+		Token: p.curToken,
+	}
+
+	p.rollToken()
+
+	for !p.presentToken(token.RCURLYBRAC) {
+		parsedStmt := p.ParseStat()
+
+		bodyWhile.Statement = append(bodyWhile.Statement, parsedStmt)
+
+		p.rollToken()
+	}
+
+	return bodyWhile
 }

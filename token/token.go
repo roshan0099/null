@@ -46,6 +46,9 @@ const (
 
 	IF   = "IF"
 	ELSE = "ELSE"
+
+	//LOOP
+	WHILE = "WHILE"
 )
 
 var keywords = map[string]string{
@@ -56,6 +59,7 @@ var keywords = map[string]string{
 	"false":  FALSE,
 	"if":     IF,
 	"else":   ELSE,
+	"while":  WHILE,
 }
 
 func FindKey(word string) string {

@@ -89,7 +89,6 @@ func (i *Identifier) String() string {
 	return i.Token.Value
 }
 
-
 //struct for return statements
 type ReturnStmt struct {
 	Token token.Token
@@ -247,4 +246,39 @@ func (b *BodyStatement) String() string {
 	}
 
 	return concatInfo.String()
+}
+
+type LoopStmt struct {
+	Token     token.Token
+	Condition Expression
+	Body      *BodyStatement
+}
+
+func (l *LoopStmt) statementNode() {}
+func (l *LoopStmt) TokenLiteral() string {
+	return "while loop"
+}
+
+func (l *LoopStmt) String() string {
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString(l.Token.Value)
+
+	concatInfo.WriteString("(" + l.Condition.String() + ")")
+
+	concatInfo.WriteString("{" + l.Body.String() + "}")
+
+	return concatInfo.String()
+}
+
+type Sample struct {
+	SampleText string
+}
+
+func (s *Sample) statementNode() {}
+func (s *Sample) TokenLiteral() string {
+	return "this is Sample "
+}
+func (s *Sample) String() string {
+	return "this is Sample's string"
 }
