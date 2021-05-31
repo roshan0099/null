@@ -1,12 +1,12 @@
 package main
 
 import (
-	_ "bufio"
+	"bufio"
 	"fmt"
-	"null/lexer"
-	"null/parser"
-	_ "null/repl"
-	_ "os"
+	_ "null/lexer"
+	_ "null/parser"
+	"null/repl"
+	"os"
 )
 
 func main() {
@@ -14,13 +14,13 @@ func main() {
 	// reader := bufio.NewReader(os.Stdin)
 
 	//////////////////////////////////////
-	// fmt.Println("--- NULL ---")
+	fmt.Println("--- NULL ---")
 
-	// read := os.Stdin
+	read := os.Stdin
 
-	// scan := bufio.NewScanner(read)
+	scan := bufio.NewScanner(read)
 
-	// repl.Begin(scan)
+	repl.Begin(scan)
 
 	///////////////////////////////////////
 
@@ -34,29 +34,24 @@ func main() {
 
 	// java := lexer.Crete(val)
 
-	input := `
-	sam = 2;
-	while(2+1){
-		2+1;
-	}
-	if(3+1){
-		5+2
-	}
-	`
+	// input := `
+	// sam = 2;
+	// while(2+1){
+	// 	2+1;
+	// }
+	// if(3+1){
+	// 	5+2
+	// }
+	// `
 
-	// // lex := lexer.Create(input)
+	// lex := lexer.Create(input)
+	// parse := parser.New(lex)
+	// // // // err := parse.Err
+	// sam := *parse.ParseProgram()
+	// fmt.Println("this is pever : ", sam)
 
-	lex := lexer.Create(input)
-	parse := parser.New(lex)
-	// // // err := parse.Err
-	sam := *parse.ParseProgram()
-	fmt.Println("this is pever : ", sam)
-
-	for kal, i := range sam.Statements {
-		fmt.Println(kal, " ---- ", i)
-	}
-	// for tok := lex.Identify(); tok.Value != token.EOF; tok = lex.Identify() {
-	// 	fmt.Printf("%+v\n", tok)
+	// for kal, i := range sam.Statements {
+	// 	fmt.Println(kal, " ---- ", i)
 	// }
 
 	// fmt.Println("hey meite : ", sam.Statements[0].String(), err())

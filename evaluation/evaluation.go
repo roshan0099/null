@@ -63,9 +63,29 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return &object.Integer{
 			Val: ch.Val,
 		}
+
+	case *ast.LoopStmt:
+
+		EvalLoop(ch, env)
+
 	}
 
 	return nil
+}
+
+func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
+
+	conditionLoop := Eval(choice.Condition, env)
+
+	if conditionLoop.Inspect() != "false" {
+		BodyStmtLoop := Eval(choice.Body, env)
+
+		fmt.Println(BodyStmtLoop.Inspect())
+
+		EvalLoop(choice, env)
+
+	}
+
 }
 
 //function to check if the infix is just an expression or to change the value of a variable

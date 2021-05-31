@@ -342,10 +342,6 @@ func (p *Parser) ifExpression() ast.Expression {
 
 	ifStmt.Condition = p.ParsingExpression(GENERAL)
 
-	// if !p.expectingToken(token.RBRACKET) {
-	// 	return nil
-	// }
-
 	if !p.expectingToken(token.LCURLYBRAC) {
 		return nil
 	}
@@ -371,8 +367,6 @@ func (p *Parser) ifStatementBody() *ast.BodyStatement {
 	body := &ast.BodyStatement{
 		Token: p.curToken,
 	}
-
-	fmt.Println("------> ", body.Token)
 
 	body.Statement = []ast.Statement{}
 
@@ -435,28 +429,22 @@ func (p *Parser) assignInfix(token string, function infixFuncs) {
 
 func (p *Parser) WhileStmt() *ast.LoopStmt {
 
-	fmt.Println("fuck ya biatch ")
-
 	whileStmt := &ast.LoopStmt{
 		Token: p.curToken,
 	}
-	fmt.Println("this si the current token 1  : ", p.curToken)
+
 	if !p.expectingToken(token.LBRACKET) {
-		fmt.Println(".....inside if : ", p.curToken)
+
 		return nil
 	}
-	fmt.Println("this si the current token 2 : ", p.curToken)
-	whileStmt.Condition = p.ParsingExpression(GENERAL)
 
-	fmt.Println("this si the current token 3 : ", p.curToken)
+	whileStmt.Condition = p.ParsingExpression(GENERAL)
 
 	if !p.expectingToken(token.LCURLYBRAC) {
 		return nil
 	}
-	fmt.Println("hey")
-	whileStmt.Body = p.whileStmtBody()
 
-	fmt.Println(whileStmt)
+	whileStmt.Body = p.whileStmtBody()
 	return whileStmt
 }
 

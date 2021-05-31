@@ -5,14 +5,14 @@ Trying to create a  basic interpreted programming language  to learn more about 
 
 ## Update 
 
-So far null is in its bare bones, it only has var declaration (which is just integer as of now) and if statement done right which again has lots of bugs. As of now working on loops.
+So far null is in its bare bones, it only has var declaration (which is just integer as of now) and if statement and a simple while loop done right which again has lots of bugs. As of now working on different data types.
 
 
 ## Features
 
 - [X] integer type
 - [ ] string type
-- [ ] loop
+- [x] loop
 - [x] if - else condition
 - [ ] if - else if
 - [ ] Function
