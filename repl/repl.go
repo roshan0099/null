@@ -29,11 +29,13 @@ func Begin(inPoint *bufio.Scanner) {
 
 		prgm := parse.ParseProgram()
 
-		eval := evaluation.Eval(prgm, env)
+		eval := evaluation.Wrapper(prgm, env)
 		if eval == nil {
 			continue
 		} else {
-			fmt.Println(eval.Inspect())
+			for sam := range eval {
+				fmt.Println(sam)
+			}
 		}
 	}
 }

@@ -17,6 +17,16 @@ var (
 	}
 )
 
+func Wrapper(typeStruct ast.Node, env *object.Env) []object.Object {
+
+	var collect []object.Object
+
+	collect = append(collect, Eval(typeStruct, env))
+
+	return collect
+
+}
+
 func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	switch ch := typeStruct.(type) {
@@ -39,9 +49,10 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.InfixExp:
 
-		return infixEvaluation(ch, env)
+		return infixEvaluationWrapper(ch, env)
 
 	case *ast.IfStatement:
+
 		conditionBool := evaluateIf(ch.Condition, ch.Body, ch.ElseBody, env)
 		return conditionBool
 
@@ -89,7 +100,7 @@ func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
 }
 
 //function to check if the infix is just an expression or to change the value of a variable
-func infixEvaluation(ch *ast.InfixExp, env *object.Env) object.Object {
+func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 	if ch.Operator == token.ASSIGN {
 
@@ -171,13 +182,15 @@ func evaluate(stmt []ast.Statement, env *object.Env) object.Object {
 
 	var result object.Object
 	// fmt.Println("this is stat : ", stmt)
+	fmt.Println("----------->>>", len(stmt))
 	for _, val := range stmt {
 		// fmt.Println("tis is inside evaluate  : ", val)
 		result = Eval(val, env)
 
+		fmt.Println("there you go the result  : ////", result)
 	}
 
-	return result
+	return nil
 }
 
 func settingBoolean(val bool) object.Object {
@@ -213,14 +226,6 @@ func evaluateInfix(leftExp, rightExp object.Object, operator string, env *object
 
 		case token.LESSER:
 			return settingBoolean(leftNumb < rightNumb)
-
-		case token.ASSIGN:
-			fmt.Println(" ---> ", leftExp.Inspect(), " --- ", rightNumb, " --- ", env)
-			ok := env.ChangeVal(leftExp.Inspect(), rightExp)
-
-			if !ok {
-				return ErrorMsgUpdate("bruh variable not declared it seems")
-			}
 		}
 	}
 	return nil
