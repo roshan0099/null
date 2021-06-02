@@ -17,13 +17,11 @@ var (
 	}
 )
 
-func Wrapper(typeStruct ast.Node, env *object.Env) []object.Object {
+func Wrapper(typeStruct ast.Node, env *object.Env) object.Object {
 
-	var collect []object.Object
+	val := Eval(typeStruct, env)
 
-	collect = append(collect, Eval(typeStruct, env))
-
-	return collect
+	return val
 
 }
 
@@ -34,6 +32,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	case *ast.Program:
 
 		return evaluate(ch.Statements, env)
+		// return nil
 
 	case *ast.ParseExp:
 		// fmt.Println(ch.Exp)
@@ -63,7 +62,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		StoreVal(ch.Name, rightExp, env)
 
 	case *ast.BodyStatement:
-		return evaluate(ch.Statement, env)
+		return evaluateBody(ch.Statement, env)
 
 	case *ast.Identifier:
 
@@ -180,17 +179,34 @@ func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
 
 func evaluate(stmt []ast.Statement, env *object.Env) object.Object {
 
-	var result object.Object
-	// fmt.Println("this is stat : ", stmt)
-	fmt.Println("----------->>>", len(stmt))
-	for _, val := range stmt {
-		// fmt.Println("tis is inside evaluate  : ", val)
-		result = Eval(val, env)
+	result := &object.BlockStmt{}
 
-		fmt.Println("there you go the result  : ////", result)
+	for _, val := range stmt {
+
+		if val := Eval(val, env); val != nil {
+			result.Block = append(result.Block, val)
+		}
+
 	}
 
-	return nil
+	return result
+}
+
+func evaluateBody(stmt []ast.Statement, env *object.Env) object.Object {
+
+	result := &object.BlockStmt{}
+
+	for _, val := range stmt {
+
+		//filtering out the nil ones so as to prevent possible error
+
+		if check := Eval(val, env); check != nil {
+			result.Block = append(result.Block, check)
+		}
+
+	}
+
+	return result
 }
 
 func settingBoolean(val bool) object.Object {

@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Object interface {
@@ -34,3 +35,20 @@ type Null struct{}
 
 func (n *Null) Type() string    { return "NULL" }
 func (n *Null) Inspect() string { return "null" }
+
+type BlockStmt struct {
+	Block []Object
+}
+
+func (b *BlockStmt) Type() string { return "Block" }
+func (b *BlockStmt) Inspect() string {
+
+	var merge []string
+	// return strings.Join(b.Block[:], "\n")
+	for _, point := range b.Block {
+		if point != nil {
+			merge = append(merge, point.Inspect())
+		}
+	}
+	return strings.Join(merge, "\n")
+}
