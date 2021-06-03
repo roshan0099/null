@@ -78,6 +78,9 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 		EvalLoop(ch, env)
 
+	case *ast.StringLine:
+		fmt.Println("hemme")
+
 	}
 
 	return nil

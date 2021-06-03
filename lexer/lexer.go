@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	_ "fmt"
+	"fmt"
 	"null/token"
 )
 
@@ -81,6 +81,21 @@ func (lex *Lexer) byteString() string {
 	return string(lex.code[lex.currentPosition])
 }
 
+//func to identify a string
+func (lex *Lexer) StringIdentifier() string {
+
+	lex.read()
+	var line string
+
+	for lex.currentPoint != '"' {
+		line += string(lex.currentPoint)
+		lex.read()
+	}
+
+	fmt.Print(line)
+	return line
+}
+
 //func to identify the word/symbol and derive meaning out of it
 func (lex *Lexer) Identify() token.Token {
 
@@ -118,6 +133,10 @@ func (lex *Lexer) Identify() token.Token {
 		// info.Type = token.RBRACKET
 		// info.Value = string(lex.currentPoint)
 		info = identifyingTokens(token.RBRACKET, lex.currentPoint)
+
+	case '"':
+		info.Type = token.STRING
+		info.Value = lex.StringIdentifier()
 
 	case ';':
 		info = identifyingTokens(token.SEMICOLON, lex.currentPoint)

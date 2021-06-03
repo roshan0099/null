@@ -282,3 +282,16 @@ func (s *Sample) TokenLiteral() string {
 func (s *Sample) String() string {
 	return "this is Sample's string"
 }
+
+type StringLine struct {
+	Token token.Token
+	Line  string
+}
+
+func (s *StringLine) expressionNode() {}
+func (s *StringLine) TokenLiteral() string {
+	return token.STRING
+}
+func (s *StringLine) String() string {
+	return s.Line
+}

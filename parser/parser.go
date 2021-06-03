@@ -51,6 +51,8 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.TRUE, parse.booleanCheck)
 	parse.assignPrefix(token.FALSE, parse.booleanCheck)
 	parse.assignPrefix(token.IF, parse.ifExpression)
+	parse.assignPrefix(token.STRING, parse.stringParse)
+
 	// parse.assignInfix(token.ASSIGN, parse.assignMarker)
 
 	parse.infixParse = make(map[string]infixFuncs)
@@ -465,4 +467,14 @@ func (p *Parser) whileStmtBody() *ast.BodyStatement {
 	}
 
 	return bodyWhile
+}
+
+func (p *Parser) stringParse() ast.Expression {
+
+	word := &ast.StringLine{}
+	word.Token = p.curToken
+	word.Line = p.curToken.Value
+
+	fmt.Println("this has been triggered  : ", word)
+	return word
 }

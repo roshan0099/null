@@ -52,3 +52,9 @@ func (b *BlockStmt) Inspect() string {
 	}
 	return strings.Join(merge, "\n")
 }
+
+type StringType struct {
+	word string
+}
+
+// func (s *StringType)

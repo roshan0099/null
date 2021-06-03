@@ -29,6 +29,7 @@ const (
 	EQUAL       = "=="
 	NEQUAL      = "!="
 
+	STRING = "STRING"
 	//boolean
 	TRUE  = "TRUE"
 	FALSE = "FALSE"
