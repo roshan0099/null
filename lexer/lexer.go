@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"fmt"
+	_ "fmt"
 	"null/token"
 )
 
@@ -91,8 +91,6 @@ func (lex *Lexer) StringIdentifier() string {
 		line += string(lex.currentPoint)
 		lex.read()
 	}
-
-	fmt.Print(line)
 	return line
 }
 

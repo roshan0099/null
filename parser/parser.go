@@ -475,6 +475,5 @@ func (p *Parser) stringParse() ast.Expression {
 	word.Token = p.curToken
 	word.Line = p.curToken.Value
 
-	fmt.Println("this has been triggered  : ", word)
 	return word
 }

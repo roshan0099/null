@@ -54,7 +54,11 @@ func (b *BlockStmt) Inspect() string {
 }
 
 type StringType struct {
-	word string
+	Word string
 }
 
-// func (s *StringType)
+func (s *StringType) Type() string { return "STRING" }
+func (s *StringType) Inspect() string {
+
+	return s.Word
+}

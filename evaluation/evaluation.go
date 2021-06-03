@@ -79,11 +79,19 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		EvalLoop(ch, env)
 
 	case *ast.StringLine:
-		fmt.Println("hemme")
 
+		return stringStore(ch, env)
 	}
 
 	return nil
+}
+
+func stringStore(ch *ast.StringLine, env *object.Env) object.Object {
+	// fmt.Println("======", ch.Token)
+	return &object.StringType{
+		Word: ch.Line,
+	}
+
 }
 
 func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
