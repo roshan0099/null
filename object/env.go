@@ -16,13 +16,13 @@ type Env struct {
 }
 
 func (e *Env) SetEnv(name string, obj Object) {
+
 	e.Store[name] = obj
 }
 
 func (e *Env) GetEnv(name string) (Object, bool) {
 
 	val, ok := e.Store[name]
-
 	return val, ok
 }
 

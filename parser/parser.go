@@ -52,6 +52,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.FALSE, parse.booleanCheck)
 	parse.assignPrefix(token.IF, parse.ifExpression)
 	parse.assignPrefix(token.STRING, parse.stringParse)
+	parse.assignPrefix(token.FUNCTION, parse.parseFunction)
 
 	// parse.assignInfix(token.ASSIGN, parse.assignMarker)
 
@@ -262,6 +263,7 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 
 //for non integer expression
 func (p *Parser) identifierParse() ast.Expression {
+	// fmt.Println("hry thi is ident ", p.curToken)
 	return &ast.Identifier{Token: p.curToken}
 }
 
@@ -446,13 +448,13 @@ func (p *Parser) WhileStmt() *ast.LoopStmt {
 		return nil
 	}
 
-	whileStmt.Body = p.whileStmtBody()
+	whileStmt.Body = p.StmtBody()
 	return whileStmt
 }
 
-func (p *Parser) whileStmtBody() *ast.BodyStatement {
+func (p *Parser) StmtBody() *ast.BodyStatement {
 
-	bodyWhile := &ast.BodyStatement{
+	body := &ast.BodyStatement{
 		Token: p.curToken,
 	}
 
@@ -461,12 +463,12 @@ func (p *Parser) whileStmtBody() *ast.BodyStatement {
 	for !p.presentToken(token.RCURLYBRAC) {
 		parsedStmt := p.ParseStat()
 
-		bodyWhile.Statement = append(bodyWhile.Statement, parsedStmt)
+		body.Statement = append(body.Statement, parsedStmt)
 
 		p.rollToken()
 	}
 
-	return bodyWhile
+	return body
 }
 
 func (p *Parser) stringParse() ast.Expression {
@@ -476,4 +478,63 @@ func (p *Parser) stringParse() ast.Expression {
 	word.Line = p.curToken.Value
 
 	return word
+}
+
+func (p *Parser) parseFunction() ast.Expression {
+
+	function := &ast.FunctionDeclare{
+		Token: p.curToken,
+	}
+
+	p.rollToken()
+	if p.presentToken(token.LBRACKET) && p.peekTokenCheck(token.RBRACKET) {
+		function.Arguments = nil
+
+		p.rollToken()
+	} else {
+
+		p.rollToken()
+
+		variables := []*ast.Identifier{}
+
+		variable := &ast.Identifier{
+			Token: p.curToken,
+		}
+		variables = append(variables, variable)
+
+		for p.peekTokenCheck(token.COMMA) {
+			p.rollToken()
+			p.rollToken()
+
+			variable = &ast.Identifier{
+				Token: p.curToken,
+			}
+
+			variables = append(variables, variable)
+
+		}
+
+	}
+
+	if !p.presentToken(token.RBRACKET) {
+		return nil
+	}
+	p.rollToken()
+
+	function.Body = p.StmtBody()
+
+	fmt.Println("hey this is : ", function)
+
+	return nil
+
+	// function.Arguments = p.argumentOfFunction()
+
+	return nil
+}
+
+func (p *Parser) argumentOfFunction() []*ast.Identifier {
+
+	// arguments := []*ast.Identifier{}
+
+	return nil
 }

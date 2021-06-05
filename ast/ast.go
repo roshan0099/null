@@ -295,3 +295,40 @@ func (s *StringLine) TokenLiteral() string {
 func (s *StringLine) String() string {
 	return s.Line
 }
+
+type FunctionDeclare struct {
+	Token     token.Token
+	Arguments []*Identifier
+	Body      *BodyStatement
+}
+
+func (f *FunctionDeclare) TokenLiteral() string { return f.Token.Type }
+func (f *FunctionDeclare) expressionNode()      {}
+func (f *FunctionDeclare) String() string {
+
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString(f.Token.Value + "(")
+
+	for _, val := range f.Arguments {
+		concatInfo.WriteString(val.String() + " ")
+	}
+
+	concatInfo.WriteString(")" + "{ \n" + f.Body.String() + " \n}")
+
+	return concatInfo.String()
+}
+
+type FunctionCall struct {
+	Token         token.Token
+	ArgumentsCall Expression
+}
+
+func (f *FunctionCall) TokenLiteral() string {
+	return f.Token.Type
+}
+
+func (f *FunctionCall) expressionNode() {}
+func (f *FunctionCall) String() string {
+	return "this is function call"
+}

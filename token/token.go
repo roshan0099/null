@@ -30,6 +30,8 @@ const (
 	NEQUAL      = "!="
 
 	STRING = "STRING"
+
+	FUNCTION = "FUNCTION"
 	//boolean
 	TRUE  = "TRUE"
 	FALSE = "FALSE"
@@ -61,6 +63,7 @@ var keywords = map[string]string{
 	"if":     IF,
 	"else":   ELSE,
 	"while":  WHILE,
+	"ftn":    FUNCTION,
 }
 
 func FindKey(word string) string {

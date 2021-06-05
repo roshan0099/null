@@ -162,6 +162,9 @@ func (lex *Lexer) Identify() token.Token {
 	case '*':
 		info = identifyingTokens(token.MULTI, lex.currentPoint)
 
+	case '-':
+		info = identifyingTokens(token.MINUS, lex.currentPoint)
+
 	case '/':
 		info = identifyingTokens(token.DIVIDE, lex.currentPoint)
 

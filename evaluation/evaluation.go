@@ -58,18 +58,17 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	case *ast.VarStmt:
 		// fmt.Println("it's here", ch.Token.Type, ch.Name, ch.Value)
 		rightExp := Eval(ch.Value, env)
-
 		StoreVal(ch.Name, rightExp, env)
 
 	case *ast.BodyStatement:
 		return evaluateBody(ch.Statement, env)
 
 	case *ast.Identifier:
-
+		fmt.Println("this is env : ", env)
 		return checkIdentifier(ch, env)
 
 	case *ast.IntegralParse:
-
+		fmt.Println("this is integer : ", env)
 		return &object.Integer{
 			Val: ch.Val,
 		}
