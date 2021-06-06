@@ -67,6 +67,9 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignInfix(token.GREATER, parse.parseInfix)
 	parse.assignInfix(token.ASSIGN, parse.parseInfix)
 
+	//Function call
+	parse.assignInfix(token.LBRACKET, parse.parseFunctionCall)
+
 	//to set both cur and peek
 	parse.rollToken()
 	parse.rollToken()
@@ -257,7 +260,6 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 
 		//yet to complete
 	}
-
 	return leftexp
 }
 
@@ -523,18 +525,42 @@ func (p *Parser) parseFunction() ast.Expression {
 
 	function.Body = p.StmtBody()
 
-	fmt.Println("hey this is : ", function)
+	// fmt.Println("hey this is : ", function)
 
-	return nil
+	return function
 
 	// function.Arguments = p.argumentOfFunction()
-
-	return nil
 }
 
 func (p *Parser) argumentOfFunction() []*ast.Identifier {
 
-	// arguments := []*ast.Identifier{}
+	//	ftnCall.ArgumentsCall := []*ast.Identifier{}
 
 	return nil
+}
+
+func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
+
+	ftnCall := &ast.FunctionCall{
+		Token:        p.curToken,
+		FunctionName: ftnName,
+	}
+
+	if p.expectingToken(token.RBRACKET) {
+		return ftnCall
+	}
+
+	p.rollToken()
+	ftnCall.ArgumentsCall = []ast.Expression{}
+	// p.rollToken()
+	ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
+
+	for p.peekTokenCheck(token.COMMA) {
+
+		p.rollToken()
+		p.rollToken()
+		ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
+
+	}
+	return ftnCall
 }

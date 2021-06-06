@@ -30,7 +30,6 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	switch ch := typeStruct.(type) {
 
 	case *ast.Program:
-
 		return evaluate(ch.Statements, env)
 		// return nil
 
@@ -49,6 +48,11 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	case *ast.InfixExp:
 
 		return infixEvaluationWrapper(ch, env)
+
+	case *ast.FunctionCall:
+
+		fmt.Println("this : ", ch)
+		return evalFtnCall(ch)
 
 	case *ast.IfStatement:
 
@@ -80,6 +84,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	case *ast.StringLine:
 
 		return stringStore(ch, env)
+
 	}
 
 	return nil
@@ -276,4 +281,11 @@ func prefixEval(operator string, rightExp object.Object) object.Object {
 	}
 
 	return rightExp
+}
+
+func evalFtnCall(choice ast.Expression) object.Object {
+
+	fmt.Println("hey biatch : ", choice.(*ast.FunctionCall).FunctionName)
+
+	return nil
 }

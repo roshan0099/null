@@ -321,7 +321,8 @@ func (f *FunctionDeclare) String() string {
 
 type FunctionCall struct {
 	Token         token.Token
-	ArgumentsCall Expression
+	FunctionName  Expression
+	ArgumentsCall []Expression
 }
 
 func (f *FunctionCall) TokenLiteral() string {
@@ -330,5 +331,11 @@ func (f *FunctionCall) TokenLiteral() string {
 
 func (f *FunctionCall) expressionNode() {}
 func (f *FunctionCall) String() string {
-	return "this is function call"
+
+	var concatInfo bytes.Buffer
+
+	for _, val := range f.ArgumentsCall {
+		concatInfo.WriteString(val.String() + " ")
+	}
+	return concatInfo.String()
 }
