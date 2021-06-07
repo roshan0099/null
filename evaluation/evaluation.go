@@ -51,8 +51,8 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.FunctionCall:
 
-		fmt.Println("this : ", ch)
-		return evalFtnCall(ch)
+		name := Eval(ch.FunctionName, env)
+		return evalFtnCall(ch, name)
 
 	case *ast.IfStatement:
 
@@ -68,11 +68,9 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return evaluateBody(ch.Statement, env)
 
 	case *ast.Identifier:
-		fmt.Println("this is env : ", env)
 		return checkIdentifier(ch, env)
 
 	case *ast.IntegralParse:
-		fmt.Println("this is integer : ", env)
 		return &object.Integer{
 			Val: ch.Val,
 		}
@@ -146,13 +144,16 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
-	val, _ := env.GetEnv(choice.String())
-
-	if val == nil {
-		return ErrorMsgUpdate("bru its undefind alright ?")
+	if val, _ := env.GetEnv(choice.String()); val != nil {
+		return val
 	}
 
-	return val
+	if val, _ := object.Builtin[choice.String()]; val != nil {
+		nout := val.(*object.Wrapper)
+		return nout
+	}
+
+	return ErrorMsgUpdate(" undeclared variable/function ")
 }
 
 func ErrorMsgUpdate(message string) object.Object {
@@ -283,9 +284,14 @@ func prefixEval(operator string, rightExp object.Object) object.Object {
 	return rightExp
 }
 
-func evalFtnCall(choice ast.Expression) object.Object {
+func evalFtnCall(choice ast.Expression, builtin object.Object) object.Object {
 
-	fmt.Println("hey biatch : ", choice.(*ast.FunctionCall).FunctionName)
+	// fmt.Println("hey biatch : ", choice.(*ast.FunctionCall).ArgumentsCall)
+	args := choice.(*ast.FunctionCall).ArgumentsCall
+	noutResponse := builtin.(*object.Wrapper)
 
-	return nil
+	kal := noutResponse.WrapperFunc(args)
+
+	// fmt.Println("there you g maite finally : ", kal)
+	return kal
 }

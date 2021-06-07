@@ -1,13 +1,26 @@
 package object
 
-import "null/ast"
+import (
+	"null/ast"
+)
 
-type builtnCondition func(args ...ast.Expression) Object
+type BuiltnCondition func(args []ast.Expression) Object
 
-var builtin = map[string]builtnCondition{
-	"nout": func(args ...ast.Expression) Object {
+var Builtin = map[string]Object{
 
-		return nil
+	"nout": &Wrapper{
 
+		WrapperFunc: func(args []ast.Expression) Object {
+
+			noutStore := &Nout{}
+
+			for _, val := range args {
+
+				noutStore.Statements = append(noutStore.Statements, val)
+			}
+
+			return noutStore
+
+		},
 	},
 }

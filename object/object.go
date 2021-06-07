@@ -1,7 +1,9 @@
 package object
 
 import (
+	"bytes"
 	"fmt"
+	"null/ast"
 	"strings"
 )
 
@@ -61,4 +63,37 @@ func (s *StringType) Type() string { return "STRING" }
 func (s *StringType) Inspect() string {
 
 	return s.Word
+}
+
+type Nout struct {
+	Statements []ast.Expression
+}
+
+func (n *Nout) Type() string { return "nout function" }
+func (n *Nout) Inspect() string {
+
+	var concatInfo bytes.Buffer
+
+	for index, val := range n.Statements {
+
+		if index != len(n.Statements)-1 {
+			concatInfo.WriteString(val.String() + "\n")
+		} else {
+			concatInfo.WriteString(val.String())
+		}
+	}
+	return concatInfo.String()
+}
+
+//Wrapper for function so as to return object
+
+type Wrapper struct {
+	WrapperFunc BuiltnCondition
+}
+
+func (w *Wrapper) Type() string { return "Wrapper function" }
+
+func (w *Wrapper) Inspect() string {
+
+	return "Wrapper function"
 }
