@@ -1,16 +1,12 @@
 package object
 
-import (
-	"null/ast"
-)
-
-type BuiltnCondition func(args []ast.Expression) Object
+type BuiltnCondition func(args []Object) Object
 
 var Builtin = map[string]Object{
 
 	"nout": &Wrapper{
 
-		WrapperFunc: func(args []ast.Expression) Object {
+		WrapperFunc: func(args []Object) Object {
 
 			noutStore := &Nout{}
 

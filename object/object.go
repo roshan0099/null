@@ -3,7 +3,6 @@ package object
 import (
 	"bytes"
 	"fmt"
-	"null/ast"
 	"strings"
 )
 
@@ -66,7 +65,7 @@ func (s *StringType) Inspect() string {
 }
 
 type Nout struct {
-	Statements []ast.Expression
+	Statements []Object
 }
 
 func (n *Nout) Type() string { return "nout function" }
@@ -77,9 +76,9 @@ func (n *Nout) Inspect() string {
 	for index, val := range n.Statements {
 
 		if index != len(n.Statements)-1 {
-			concatInfo.WriteString(val.String() + "\n")
+			concatInfo.WriteString(val.Inspect() + "\n")
 		} else {
-			concatInfo.WriteString(val.String())
+			concatInfo.WriteString(val.Inspect())
 		}
 	}
 	return concatInfo.String()

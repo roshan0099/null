@@ -52,7 +52,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	case *ast.FunctionCall:
 
 		name := Eval(ch.FunctionName, env)
-		return evalFtnCall(ch, name)
+		return evalFtnCall(ch, name, env)
 
 	case *ast.IfStatement:
 
@@ -284,13 +284,20 @@ func prefixEval(operator string, rightExp object.Object) object.Object {
 	return rightExp
 }
 
-func evalFtnCall(choice ast.Expression, builtin object.Object) object.Object {
+func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) object.Object {
 
 	// fmt.Println("hey biatch : ", choice.(*ast.FunctionCall).ArgumentsCall)
 	args := choice.(*ast.FunctionCall).ArgumentsCall
+
+	analysedArgs := []object.Object{}
+
+	for _, val := range args {
+		analysedArgs = append(analysedArgs, Eval(val, env))
+	}
+
 	noutResponse := builtin.(*object.Wrapper)
 
-	kal := noutResponse.WrapperFunc(args)
+	kal := noutResponse.WrapperFunc(analysedArgs)
 
 	// fmt.Println("there you g maite finally : ", kal)
 	return kal
