@@ -17,11 +17,14 @@ var (
 	}
 )
 
-func Wrapper(typeStruct ast.Node, env *object.Env) object.Object {
+//collects all the interfaces
+var collection object.MainObject
 
-	val := Eval(typeStruct, env)
+func Wrapper(typeStruct ast.Node, env *object.Env) object.MainObject {
 
-	return val
+	Eval(typeStruct, env)
+
+	return collection
 
 }
 
@@ -30,8 +33,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	switch ch := typeStruct.(type) {
 
 	case *ast.Program:
-		return evaluate(ch.Statements, env)
-		// return nil
+		collection = evaluate(ch.Statements, env)
 
 	case *ast.ParseExp:
 		// fmt.Println(ch.Exp)
@@ -77,7 +79,14 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.LoopStmt:
 
-		EvalLoop(ch, env)
+		fam := &object.LoopWrapper{
+			Wrapper: func() {
+
+				EvalLoop(ch, env)
+			},
+		}
+
+		return fam
 
 	case *ast.StringLine:
 
@@ -102,7 +111,6 @@ func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
 
 	if conditionLoop.Inspect() != "false" {
 		BodyStmtLoop := Eval(choice.Body, env)
-
 		fmt.Println(BodyStmtLoop.Inspect())
 
 		EvalLoop(choice, env)
@@ -193,12 +201,11 @@ func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
 	return returnVal
 }
 
-func evaluate(stmt []ast.Statement, env *object.Env) object.Object {
+func evaluate(stmt []ast.Statement, env *object.Env) object.MainObject {
 
-	result := &object.BlockStmt{}
+	result := &object.BlockStmts{}
 
 	for _, val := range stmt {
-
 		if val := Eval(val, env); val != nil {
 			result.Block = append(result.Block, val)
 		}

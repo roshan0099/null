@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+type MainObject interface {
+	Type() string
+	Inspect() []Object
+}
+
 type Object interface {
 	Type() string
 	Inspect() string
@@ -45,13 +50,30 @@ func (b *BlockStmt) Type() string { return "Block" }
 func (b *BlockStmt) Inspect() string {
 
 	var merge []string
-	// return strings.Join(b.Block[:], "\n")
+
 	for _, point := range b.Block {
 		if point != nil {
 			merge = append(merge, point.Inspect())
 		}
 	}
 	return strings.Join(merge, "\n")
+}
+
+type BlockStmts struct {
+	Block []Object
+}
+
+func (b *BlockStmts) Type() string { return "Block" }
+func (b *BlockStmts) Inspect() []Object {
+
+	var merge []Object
+
+	for _, point := range b.Block {
+		if point != nil {
+			merge = append(merge, point)
+		}
+	}
+	return merge
 }
 
 type StringType struct {
@@ -95,4 +117,18 @@ func (w *Wrapper) Type() string { return "Wrapper function" }
 func (w *Wrapper) Inspect() string {
 
 	return "Wrapper function"
+}
+
+/////////////////
+type WrapCondition func()
+type LoopWrapper struct {
+	// Hai func(choice *ast.LoopStmt, env Env)
+	Wrapper WrapCondition
+}
+
+func (l *LoopWrapper) Type() string { return "Just a sample function" }
+func (l *LoopWrapper) Inspect() string {
+
+	l.Wrapper()
+	return ""
 }

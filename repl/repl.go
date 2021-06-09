@@ -30,17 +30,12 @@ func Begin(inPoint *bufio.Scanner) {
 		prgm := parse.ParseProgram()
 
 		eval := evaluation.Wrapper(prgm, env)
-		// if eval == nil {
-		// 	fmt.Println("kkk -> ", eval)
-		// 	continue
-		// } else {
-		// 	// for sam := range eval {
-		// 	// 	fmt.Println(sam)
-		// 	// }
-		// 	fmt.Println("==== ", eval)
-		// }
-		if eval.Inspect() != "" {
-			fmt.Println(eval.Inspect())
+
+		for _, val := range eval.(*object.BlockStmts).Block {
+			if valueCheck := val.Inspect(); valueCheck != "" {
+				fmt.Println(valueCheck)
+			}
 		}
+
 	}
 }
