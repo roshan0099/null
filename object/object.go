@@ -119,10 +119,8 @@ func (w *Wrapper) Inspect() string {
 	return "Wrapper function"
 }
 
-/////////////////
 type WrapCondition func()
 type LoopWrapper struct {
-	// Hai func(choice *ast.LoopStmt, env Env)
 	Wrapper WrapCondition
 }
 
