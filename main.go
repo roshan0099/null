@@ -3,25 +3,37 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	_ "null/lexer"
 	_ "null/parser"
 	"null/repl"
 	"os"
+	"strings"
 )
 
 func main() {
 
-	// reader := bufio.NewReader(os.Stdin)
+	var fileVal []byte
+	args := os.Args
 
-	//////////////////////////////////////
-	fmt.Println("--- NULL ---")
+	argsFileName := args[1:]
 
 	read := os.Stdin
 
 	scan := bufio.NewScanner(read)
 
-	repl.Begin(scan)
+	if len(argsFileName) == 1 {
 
+		fileName := string(argsFileName[0])
+		if strings.Split(fileName, ".")[1] == "nl" {
+			fileVal, _ = ioutil.ReadFile(fileName)
+			repl.Begin(scan, string(fileVal))
+		}
+		os.Exit(0)
+	}
+
+	fmt.Println("--- NULL ---")
+	repl.Begin(scan, string(fileVal))
 	///////////////////////////////////////
 
 	// val, err := reader.ReadString('\n')

@@ -9,33 +9,41 @@ import (
 	"null/parser"
 )
 
-func Begin(inPoint *bufio.Scanner) {
+func ReadingProcess(input string, env *object.Env) {
+	lex := lexer.Create(input)
+	parse := parser.New(lex)
+	prgm := parse.ParseProgram()
 
-	fmt.Println("R E P L ")
+	eval := evaluation.Wrapper(prgm, env)
+
+	for _, val := range eval.(*object.BlockStmts).Block {
+		if valueCheck := val.Inspect(); valueCheck != "" {
+			fmt.Println(valueCheck)
+		}
+	}
+}
+
+func Begin(inPoint *bufio.Scanner, fileVal string) {
 
 	env := object.NewEnv()
 
-	for {
+	if fileVal != "" {
+		ReadingProcess(fileVal, env)
+	} else {
 
-		fmt.Printf(">> ")
-		_ = inPoint.Scan()
+		fmt.Println("R E P L ")
+		fmt.Println(" ")
 
-		scanLine := inPoint.Text()
-		if scanLine == "bye" {
-			break
-		}
-		lex := lexer.Create(scanLine)
-		parse := parser.New(lex)
+		for {
+			fmt.Printf(">> ")
+			_ = inPoint.Scan()
 
-		prgm := parse.ParseProgram()
-
-		eval := evaluation.Wrapper(prgm, env)
-
-		for _, val := range eval.(*object.BlockStmts).Block {
-			if valueCheck := val.Inspect(); valueCheck != "" {
-				fmt.Println(valueCheck)
+			scanLine := inPoint.Text()
+			if scanLine == "bye" {
+				break
 			}
-		}
+			ReadingProcess(scanLine, env)
 
+		}
 	}
 }

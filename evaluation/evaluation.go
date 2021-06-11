@@ -111,8 +111,9 @@ func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
 
 	if conditionLoop.Inspect() != "false" {
 		BodyStmtLoop := Eval(choice.Body, env)
-		fmt.Println(BodyStmtLoop.Inspect())
-
+		if BodyStmtLoop.Inspect() != "" {
+			fmt.Println(BodyStmtLoop.Inspect())
+		}
 		EvalLoop(choice, env)
 
 	}
