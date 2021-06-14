@@ -20,7 +20,10 @@ const (
 	LESSER  = "<"
 	MULTI   = "*"
 	DIVIDE  = "/"
+	MODULO  = "%"
 
+	LSQBRACKET  = "["
+	RSQBRACKET  = "]"
 	LBRACKET    = "("
 	RBRACKET    = ")"
 	LCURLYBRAC  = "{"

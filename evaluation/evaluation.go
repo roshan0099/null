@@ -5,6 +5,7 @@ import (
 	"null/ast"
 	"null/object"
 	"null/token"
+	"os"
 )
 
 //creating types just to prevent from copies being made everytime bool is used
@@ -71,6 +72,12 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.Identifier:
 		return checkIdentifier(ch, env)
+
+	case *ast.ArrayType:
+		return &object.ArrayContents{
+
+			Body: evaluateCall(ch.ArrayBody, env),
+		}
 
 	case *ast.IntegralParse:
 		return &object.Integer{
@@ -144,7 +151,6 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 	}
 
 	leftExp := Eval(ch.Left, env)
-	// fmt.Println("aavo meir")
 
 	rightExp := Eval(ch.Right, env)
 	return evaluateInfix(leftExp, rightExp, ch.Operator, env)
@@ -154,6 +160,7 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
 	if val, _ := env.GetEnv(choice.String()); val != nil {
+
 		return val
 	}
 
@@ -167,6 +174,8 @@ func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
 func ErrorMsgUpdate(message string) object.Object {
 
+	fmt.Println(message)
+	os.Exit(0)
 	return &object.Error{
 		ErrorMsg: message,
 	}
@@ -193,10 +202,11 @@ func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
 			returnVal = Eval(elseBody, env)
 			return returnVal
 		}
-		returnVal = &object.Null{}
+		// returnVal = &object.Null{}
 
 	default:
 		ErrorMsgUpdate("condition has some problems :( ")
+
 	}
 
 	return returnVal
@@ -255,6 +265,9 @@ func evaluateInfix(leftExp, rightExp object.Object, operator string, env *object
 		case token.DIVIDE:
 			return &object.Integer{Val: leftNumb / rightNumb}
 
+		case token.MODULO:
+			return &object.Integer{Val: leftNumb % rightNumb}
+
 		case token.MULTI:
 			return &object.Integer{Val: leftNumb * rightNumb}
 
@@ -309,4 +322,16 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 
 	// fmt.Println("there you g maite finally : ", kal)
 	return kal
+}
+
+func evaluateCall(ch []ast.Expression, env *object.Env) []object.Object {
+
+	var body []object.Object
+	for _, val := range ch {
+
+		body = append(body, Eval(val, env))
+
+	}
+
+	return body
 }

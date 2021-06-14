@@ -31,8 +31,8 @@ func Begin(inPoint *bufio.Scanner, fileVal string) {
 		ReadingProcess(fileVal, env)
 	} else {
 
-		fmt.Println("R E P L ")
-		fmt.Println(" ")
+		// fmt.Println("R E P L ")
+		// fmt.Println(" ")
 
 		for {
 			fmt.Printf(">> ")

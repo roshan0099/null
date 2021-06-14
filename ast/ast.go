@@ -339,3 +339,22 @@ func (f *FunctionCall) String() string {
 	}
 	return concatInfo.String()
 }
+
+type ArrayType struct {
+	Token     token.Token
+	ArrayBody []Expression
+}
+
+func (a *ArrayType) TokenLiteral() string { return a.Token.Value }
+func (a *ArrayType) String() string {
+
+	var concatInfo bytes.Buffer
+
+	for _, val := range a.ArrayBody {
+
+		concatInfo.WriteString(val.String() + " ")
+	}
+
+	return concatInfo.String()
+}
+func (a *ArrayType) expressionNode() {}

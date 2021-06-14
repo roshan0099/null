@@ -53,10 +53,12 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.IF, parse.ifExpression)
 	parse.assignPrefix(token.STRING, parse.stringParse)
 	parse.assignPrefix(token.FUNCTION, parse.parseFunction)
+	parse.assignPrefix(token.LSQBRACKET, parse.arrayParse)
 
 	// parse.assignInfix(token.ASSIGN, parse.assignMarker)
 
 	parse.infixParse = make(map[string]infixFuncs)
+	parse.assignInfix(token.MODULO, parse.parseInfix)
 	parse.assignInfix(token.PLUS, parse.parseInfix)
 	parse.assignInfix(token.MULTI, parse.parseInfix)
 	parse.assignInfix(token.MINUS, parse.parseInfix)
@@ -238,7 +240,6 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 func (p *Parser) ParsingExpression(order int) ast.Expression {
 
 	prefix := p.prefixParse[p.curToken.Type]
-
 	if prefix == nil {
 		p.errorMsg(p.curToken.Value)
 		return nil
@@ -293,7 +294,6 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 		Operator: p.curToken.Value,
 		Left:     leftExp,
 	}
-
 	presentPrecedence := p.currentPrecedence()
 
 	p.rollToken()
@@ -563,4 +563,34 @@ func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
 
 	}
 	return ftnCall
+}
+
+func (p *Parser) arrayParse() ast.Expression {
+
+	arrayElm := &ast.ArrayType{
+		Token: p.curToken,
+	}
+
+	arrayElm.ArrayBody = p.arrayBodyParse()
+
+	return arrayElm
+
+}
+
+func (p *Parser) arrayBodyParse() []ast.Expression {
+
+	var arrayInside []ast.Expression
+	p.rollToken()
+
+	arrayInside = append(arrayInside, p.ParsingExpression(GENERAL))
+	for p.peekTokenCheck(token.COMMA) && !p.peekTokenCheck(token.RCURLYBRAC) {
+
+		p.rollToken()
+		p.rollToken()
+		arrayInside = append(arrayInside, p.ParsingExpression(GENERAL))
+	}
+
+	p.rollToken()
+
+	return arrayInside
 }
