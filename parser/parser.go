@@ -68,6 +68,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignInfix(token.LESSER, parse.parseInfix)
 	parse.assignInfix(token.GREATER, parse.parseInfix)
 	parse.assignInfix(token.ASSIGN, parse.parseInfix)
+	parse.assignInfix(token.LSQBRACKET, parse.parseInfix)
 
 	//Function call
 	parse.assignInfix(token.LBRACKET, parse.parseFunctionCall)
@@ -246,12 +247,12 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 	}
 
 	leftexp := prefix()
-	// fmt.Println("before loop", p.curToken, " --- ", p.peekToken, " ------ ", p.nextPrecedence())
+
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
-		// fmt.Println("haa inside for loop", p.peekToken)
 		operator, ok := p.infixParse[p.peekToken.Type]
 
 		if !ok {
+
 			return leftexp
 		}
 
@@ -303,6 +304,7 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 	infixExp.Right = rightStatement
 
 	return infixExp
+
 }
 
 func (p *Parser) parsePrefix() ast.Expression {

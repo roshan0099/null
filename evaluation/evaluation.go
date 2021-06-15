@@ -6,6 +6,7 @@ import (
 	"null/object"
 	"null/token"
 	"os"
+	"strconv"
 )
 
 //creating types just to prevent from copies being made everytime bool is used
@@ -119,6 +120,8 @@ func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
 	if conditionLoop.Inspect() != "false" {
 		BodyStmtLoop := Eval(choice.Body, env)
 		if BodyStmtLoop.Inspect() != "" {
+			//printing the contents in the loop
+
 			fmt.Println(BodyStmtLoop.Inspect())
 		}
 		EvalLoop(choice, env)
@@ -136,7 +139,6 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 		case *ast.Identifier:
 			rightExp := Eval(ch.Right, env)
-
 			ok := env.ChangeVal(choice.String(), rightExp)
 
 			if !ok {
@@ -148,6 +150,11 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 		default:
 			return ErrorMsgUpdate("Variable declaration not done right")
 		}
+	} else if ch.Operator == token.LSQBRACKET {
+
+		num := Eval(ch.Right, env)
+		return arrayIndexVal(num, ch.Left, env)
+		// return ErrorMsgUpdate("oooopppssss you on right track but we are woking on that ")
 	}
 
 	leftExp := Eval(ch.Left, env)
@@ -156,6 +163,21 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 	return evaluateInfix(leftExp, rightExp, ch.Operator, env)
 
 }
+
+////////////
+//////////////////////
+////////////////////////////////
+func arrayIndexVal(index object.Object, name ast.Expression, env *object.Env) object.Object {
+	val, _ := strconv.Atoi(index.Inspect())
+
+	kal, _ := env.GetEnv(name.String())
+
+	return kal.(*object.ArrayContents).Body[val]
+}
+
+///////////////////////////////////
+////////////////////////////
+//////////////
 
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
