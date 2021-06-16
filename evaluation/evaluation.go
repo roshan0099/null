@@ -65,8 +65,10 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.VarStmt:
 		// fmt.Println("it's here", ch.Token.Type, ch.Name, ch.Value)
+		fmt.Println("var")
 		rightExp := Eval(ch.Value, env)
-		StoreVal(ch.Name, rightExp, env)
+		fmt.Println("///////////", rightExp)
+		StoreVal(ch, rightExp, env)
 
 	case *ast.BodyStatement:
 		return evaluateBody(ch.Statement, env)
@@ -203,9 +205,33 @@ func ErrorMsgUpdate(message string) object.Object {
 	}
 }
 
-func StoreVal(name *ast.Identifier, exp object.Object, env *object.Env) {
+func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 	// fmt.Println("this is whats inside exp  --->: ", name.Token.Value, exp.Inspect())
-	env.SetEnv(name.Token.Value, exp)
+
+	//checking to know if the user input is required or not
+	switch choice := name.Value.(type) {
+
+	case *ast.FunctionCall:
+
+		///////////////////
+		//////////////////////////
+		//////////////////////////////////
+		fmt.Println("yo bithv : ", choice.FunctionName)
+		jan := &object.StringType{}
+		// var sa string
+		fmt.Scanf("%s", &jan.Word)
+		// fmt.Println(jan)
+		env.SetEnv(name.Name.String(), jan)
+		///////////////////////////////////////
+		////////////////////////////////
+		///////////////////////
+	default:
+		fmt.Println("ithaanu mone saanam", exp)
+		env.SetEnv(name.Name.String(), exp)
+
+	}
+	// fmt.Println(name.String(), name.TokenLiteral())
+
 }
 
 func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
@@ -340,10 +366,10 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 
 	noutResponse := builtin.(*object.Wrapper)
 
-	kal := noutResponse.WrapperFunc(analysedArgs)
+	response := noutResponse.WrapperFunc(analysedArgs)
 
 	// fmt.Println("there you g maite finally : ", kal)
-	return kal
+	return response
 }
 
 func evaluateCall(ch []ast.Expression, env *object.Env) []object.Object {

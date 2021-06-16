@@ -68,7 +68,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignInfix(token.LESSER, parse.parseInfix)
 	parse.assignInfix(token.GREATER, parse.parseInfix)
 	parse.assignInfix(token.ASSIGN, parse.parseInfix)
-	parse.assignInfix(token.LSQBRACKET, parse.parseInfix)
+	parse.assignInfix(token.LSQBRACKET, parse.parseArray)
 
 	//Function call
 	parse.assignInfix(token.LBRACKET, parse.parseFunctionCall)
@@ -161,6 +161,8 @@ func (p *Parser) ParseVar() *ast.VarStmt {
 	p.rollToken()
 
 	VarParse.Value = p.ParsingExpression(GENERAL)
+
+	// fmt.Println("checking :>> ", VarParse.Value.(*ast.FunctionCall).FunctionName)
 
 	return VarParse
 
@@ -267,7 +269,7 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 
 //for non integer expression
 func (p *Parser) identifierParse() ast.Expression {
-	// fmt.Println("hry thi is ident ", p.curToken)
+
 	return &ast.Identifier{Token: p.curToken}
 }
 
@@ -305,6 +307,30 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 
 	return infixExp
 
+}
+
+func (p *Parser) parseArray(leftExp ast.Expression) ast.Expression {
+
+	arrayContent := &ast.InfixExp{
+
+		Token:    p.curToken,
+		Operator: p.curToken.Value,
+		Left:     leftExp,
+	}
+
+	presentPrecedence := p.currentPrecedence()
+
+	p.rollToken()
+
+	rightStatement := p.ParsingExpression(presentPrecedence)
+
+	arrayContent.Right = rightStatement
+
+	if !p.expectingToken(token.RSQBRACKET) {
+		return nil
+	}
+
+	return arrayContent
 }
 
 func (p *Parser) parsePrefix() ast.Expression {
