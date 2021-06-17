@@ -109,6 +109,7 @@ func (n *Nout) Inspect() string {
 //Wrapper for function so as to return object
 
 type Wrapper struct {
+	Name        string
 	WrapperFunc BuiltnCondition
 }
 
@@ -116,7 +117,7 @@ func (w *Wrapper) Type() string { return "Wrapper function" }
 
 func (w *Wrapper) Inspect() string {
 
-	return "Wrapper function"
+	return w.Name
 }
 
 type WrapCondition func()

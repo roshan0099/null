@@ -34,7 +34,7 @@ func Begin(inPoint *bufio.Scanner, fileVal string) {
 		var scanLine string
 		for {
 
-			if !strings.Contains(scanLine, "nin(") {
+			if !strings.Contains(scanLine, "ni(") && !strings.Contains(scanLine, "ns(") {
 				fmt.Printf(">> ")
 			}
 			_ = inPoint.Scan()

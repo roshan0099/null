@@ -4,8 +4,8 @@ type BuiltnCondition func(args []Object) Object
 
 var Builtin = map[string]Object{
 
-	"nout": &Wrapper{
-
+	"np": &Wrapper{
+		Name: "np",
 		WrapperFunc: func(args []Object) Object {
 
 			noutStore := &Nout{}
@@ -20,8 +20,18 @@ var Builtin = map[string]Object{
 		},
 	},
 
-	"nin": &Wrapper{
+	"ns": &Wrapper{
+		Name: "ns",
+		WrapperFunc: func(args []Object) Object {
 
+			noutStore := &Nout{}
+			return noutStore
+
+		},
+	},
+
+	"ni": &Wrapper{
+		Name: "ni",
 		WrapperFunc: func(args []Object) Object {
 
 			noutStore := &Nout{}
