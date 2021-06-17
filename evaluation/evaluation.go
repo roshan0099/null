@@ -166,7 +166,8 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 	} else if ch.Operator == token.LSQBRACKET {
 
 		num := Eval(ch.Right, env)
-		return arrayIndexVal(num, ch.Left, env)
+
+		return indexVal(num, ch.Left, env)
 		// return ErrorMsgUpdate("oooopppssss you on right track but we are woking on that ")
 	}
 
@@ -177,21 +178,24 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 }
 
-////////////
-//////////////////////
-///////////////////////////////
-
-func arrayIndexVal(index object.Object, name ast.Expression, env *object.Env) object.Object {
+func indexVal(index object.Object, name ast.Expression, env *object.Env) object.Object {
 	val, _ := strconv.Atoi(index.Inspect())
 
 	kal, _ := env.GetEnv(name.String())
 
-	return kal.(*object.ArrayContents).Body[val]
-}
+	switch kal.(type) {
 
-///////////////////////////////////
-////////////////////////////
-//////////////
+	case *object.StringType:
+
+		dam := kal.(*object.StringType).Word[val]
+		return &object.StringType{
+			Word: string(dam),
+		}
+
+	default:
+		return kal.(*object.ArrayContents).Body[val]
+	}
+}
 
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
