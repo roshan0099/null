@@ -98,7 +98,7 @@ func (n *Nout) Inspect() string {
 	for index, val := range n.Statements {
 
 		if index != len(n.Statements)-1 {
-			concatInfo.WriteString(val.Inspect() + "\n")
+			concatInfo.WriteString(val.Inspect() + " ")
 		} else {
 			concatInfo.WriteString(val.Inspect())
 		}
@@ -109,6 +109,7 @@ func (n *Nout) Inspect() string {
 //Wrapper for function so as to return object
 
 type Wrapper struct {
+	Name        string
 	WrapperFunc BuiltnCondition
 }
 
@@ -116,7 +117,7 @@ func (w *Wrapper) Type() string { return "Wrapper function" }
 
 func (w *Wrapper) Inspect() string {
 
-	return "Wrapper function"
+	return w.Name
 }
 
 type WrapCondition func()
@@ -129,4 +130,25 @@ func (l *LoopWrapper) Inspect() string {
 
 	l.Wrapper()
 	return ""
+}
+
+type ArrayContents struct {
+	Body []Object
+}
+
+func (a *ArrayContents) Type() string { return "Array Content" }
+func (a *ArrayContents) Inspect() string {
+
+	var (
+		outinfo   bytes.Buffer
+		storeInfo []string
+	)
+	outinfo.WriteString("[")
+	for _, val := range a.Body {
+
+		storeInfo = append(storeInfo, val.Inspect())
+	}
+	outinfo.WriteString(strings.Join(storeInfo, " "))
+	outinfo.WriteString("]")
+	return outinfo.String()
 }

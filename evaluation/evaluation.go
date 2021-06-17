@@ -5,6 +5,8 @@ import (
 	"null/ast"
 	"null/object"
 	"null/token"
+	"os"
+	"strconv"
 )
 
 //creating types just to prevent from copies being made everytime bool is used
@@ -63,14 +65,22 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.VarStmt:
 		// fmt.Println("it's here", ch.Token.Type, ch.Name, ch.Value)
+
 		rightExp := Eval(ch.Value, env)
-		StoreVal(ch.Name, rightExp, env)
+
+		StoreVal(ch, rightExp, env)
 
 	case *ast.BodyStatement:
 		return evaluateBody(ch.Statement, env)
 
 	case *ast.Identifier:
 		return checkIdentifier(ch, env)
+
+	case *ast.ArrayType:
+		return &object.ArrayContents{
+
+			Body: evaluateCall(ch.ArrayBody, env),
+		}
 
 	case *ast.IntegralParse:
 		return &object.Integer{
@@ -112,6 +122,8 @@ func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
 	if conditionLoop.Inspect() != "false" {
 		BodyStmtLoop := Eval(choice.Body, env)
 		if BodyStmtLoop.Inspect() != "" {
+			//printing the contents in the loop
+
 			fmt.Println(BodyStmtLoop.Inspect())
 		}
 		EvalLoop(choice, env)
@@ -128,12 +140,21 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 		switch choice := ch.Left.(type) {
 
 		case *ast.Identifier:
+
 			rightExp := Eval(ch.Right, env)
 
-			ok := env.ChangeVal(choice.String(), rightExp)
+			switch ch := ch.Right.(type) {
 
-			if !ok {
-				return ErrorMsgUpdate("seems like the variable is not declared ")
+			case *ast.FunctionCall:
+				niAndns(choice.String(), ch, env)
+
+			default:
+
+				ok := env.ChangeVal(choice.String(), rightExp)
+				if !ok {
+					return ErrorMsgUpdate("seems like the variable is not declared ")
+
+				}
 
 			}
 			return nil
@@ -141,25 +162,51 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 		default:
 			return ErrorMsgUpdate("Variable declaration not done right")
 		}
+
+	} else if ch.Operator == token.LSQBRACKET {
+
+		num := Eval(ch.Right, env)
+
+		return indexVal(num, ch.Left, env)
+		// return ErrorMsgUpdate("oooopppssss you on right track but we are woking on that ")
 	}
 
 	leftExp := Eval(ch.Left, env)
-	// fmt.Println("aavo meir")
 
 	rightExp := Eval(ch.Right, env)
 	return evaluateInfix(leftExp, rightExp, ch.Operator, env)
 
 }
 
+func indexVal(index object.Object, name ast.Expression, env *object.Env) object.Object {
+	val, _ := strconv.Atoi(index.Inspect())
+
+	kal, _ := env.GetEnv(name.String())
+
+	switch kal.(type) {
+
+	case *object.StringType:
+
+		dam := kal.(*object.StringType).Word[val]
+		return &object.StringType{
+			Word: string(dam),
+		}
+
+	default:
+		return kal.(*object.ArrayContents).Body[val]
+	}
+}
+
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
 	if val, _ := env.GetEnv(choice.String()); val != nil {
+
 		return val
 	}
 
 	if val, _ := object.Builtin[choice.String()]; val != nil {
-		nout := val.(*object.Wrapper)
-		return nout
+		builtin := val.(*object.Wrapper)
+		return builtin
 	}
 
 	return ErrorMsgUpdate(" undeclared variable/function ")
@@ -167,14 +214,30 @@ func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
 func ErrorMsgUpdate(message string) object.Object {
 
+	fmt.Println(message)
+	os.Exit(0)
 	return &object.Error{
 		ErrorMsg: message,
 	}
 }
 
-func StoreVal(name *ast.Identifier, exp object.Object, env *object.Env) {
-	// fmt.Println("this is whats inside exp  --->: ", name.Token.Value, exp.Inspect())
-	env.SetEnv(name.Token.Value, exp)
+func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
+
+	//checking to know if the user input is required or not
+	switch choice := name.Value.(type) {
+
+	//to check if it's funtion to accept user input
+	case *ast.FunctionCall:
+
+		niAndns(name.Name.String(), choice, env)
+
+	default:
+
+		env.SetEnv(name.Name.String(), exp)
+
+	}
+	// fmt.Println(name.String(), name.TokenLiteral())
+
 }
 
 func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
@@ -193,10 +256,11 @@ func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
 			returnVal = Eval(elseBody, env)
 			return returnVal
 		}
-		returnVal = &object.Null{}
+		// returnVal = &object.Null{}
 
 	default:
 		ErrorMsgUpdate("condition has some problems :( ")
+
 	}
 
 	return returnVal
@@ -255,6 +319,9 @@ func evaluateInfix(leftExp, rightExp object.Object, operator string, env *object
 		case token.DIVIDE:
 			return &object.Integer{Val: leftNumb / rightNumb}
 
+		case token.MODULO:
+			return &object.Integer{Val: leftNumb % rightNumb}
+
 		case token.MULTI:
 			return &object.Integer{Val: leftNumb * rightNumb}
 
@@ -295,6 +362,7 @@ func prefixEval(operator string, rightExp object.Object) object.Object {
 func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) object.Object {
 
 	// fmt.Println("hey biatch : ", choice.(*ast.FunctionCall).ArgumentsCall)
+
 	args := choice.(*ast.FunctionCall).ArgumentsCall
 
 	analysedArgs := []object.Object{}
@@ -305,8 +373,52 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 
 	noutResponse := builtin.(*object.Wrapper)
 
-	kal := noutResponse.WrapperFunc(analysedArgs)
+	response := noutResponse.WrapperFunc(analysedArgs)
 
 	// fmt.Println("there you g maite finally : ", kal)
-	return kal
+	return response
+}
+
+func evaluateCall(ch []ast.Expression, env *object.Env) []object.Object {
+
+	var body []object.Object
+	for _, val := range ch {
+
+		body = append(body, Eval(val, env))
+
+	}
+
+	return body
+}
+
+func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
+	if choice.FunctionName.String() == "ns" {
+
+		input := &object.StringType{}
+
+		//checking if there is any arguments
+		if len(choice.ArgumentsCall) > 0 {
+
+			fmt.Println(choice.String())
+
+		}
+		fmt.Scanf("%s", &input.Word)
+
+		env.SetEnv(name, input)
+
+	} else if choice.FunctionName.String() == "ni" {
+
+		input := &object.Integer{}
+
+		if len(choice.ArgumentsCall) > 0 {
+
+			fmt.Println(choice.String())
+
+		}
+
+		fmt.Scanf("%d", &input.Val)
+
+		env.SetEnv(name, input)
+
+	}
 }

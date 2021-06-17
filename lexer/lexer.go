@@ -122,14 +122,11 @@ func (lex *Lexer) Identify() token.Token {
 		}
 
 	case '(':
-		// info.Type = token.LBRACKET
-		// info.Value = string(lex.currentPoint)
 
 		info = identifyingTokens(token.LBRACKET, lex.currentPoint)
 
 	case ')':
-		// info.Type = token.RBRACKET
-		// info.Value = string(lex.currentPoint)
+
 		info = identifyingTokens(token.RBRACKET, lex.currentPoint)
 
 	case '"':
@@ -166,6 +163,7 @@ func (lex *Lexer) Identify() token.Token {
 		info = identifyingTokens(token.MINUS, lex.currentPoint)
 
 	case '/':
+
 		info = identifyingTokens(token.DIVIDE, lex.currentPoint)
 
 	case '{':
@@ -174,11 +172,20 @@ func (lex *Lexer) Identify() token.Token {
 	case '}':
 		info = identifyingTokens(token.RCURLYBRAC, lex.currentPoint)
 
+	case '%':
+		info = identifyingTokens(token.MODULO, lex.currentPoint)
+
 	case '>':
 		info = identifyingTokens(token.GREATER, lex.currentPoint)
 
 	case '<':
 		info = identifyingTokens(token.LESSER, lex.currentPoint)
+
+	case '[':
+		info = identifyingTokens(token.LSQBRACKET, lex.currentPoint)
+
+	case ']':
+		info = identifyingTokens(token.RSQBRACKET, lex.currentPoint)
 
 	case 0:
 		info.Type = "EOF"

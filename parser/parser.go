@@ -53,10 +53,12 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.IF, parse.ifExpression)
 	parse.assignPrefix(token.STRING, parse.stringParse)
 	parse.assignPrefix(token.FUNCTION, parse.parseFunction)
+	parse.assignPrefix(token.LSQBRACKET, parse.arrayParse)
 
 	// parse.assignInfix(token.ASSIGN, parse.assignMarker)
 
 	parse.infixParse = make(map[string]infixFuncs)
+	parse.assignInfix(token.MODULO, parse.parseInfix)
 	parse.assignInfix(token.PLUS, parse.parseInfix)
 	parse.assignInfix(token.MULTI, parse.parseInfix)
 	parse.assignInfix(token.MINUS, parse.parseInfix)
@@ -66,6 +68,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignInfix(token.LESSER, parse.parseInfix)
 	parse.assignInfix(token.GREATER, parse.parseInfix)
 	parse.assignInfix(token.ASSIGN, parse.parseInfix)
+	parse.assignInfix(token.LSQBRACKET, parse.parseArray)
 
 	//Function call
 	parse.assignInfix(token.LBRACKET, parse.parseFunctionCall)
@@ -159,6 +162,8 @@ func (p *Parser) ParseVar() *ast.VarStmt {
 
 	VarParse.Value = p.ParsingExpression(GENERAL)
 
+	// fmt.Println("checking :>> ", VarParse.Value.(*ast.FunctionCall).FunctionName)
+
 	return VarParse
 
 }
@@ -238,19 +243,18 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 func (p *Parser) ParsingExpression(order int) ast.Expression {
 
 	prefix := p.prefixParse[p.curToken.Type]
-
 	if prefix == nil {
 		p.errorMsg(p.curToken.Value)
 		return nil
 	}
 
 	leftexp := prefix()
-	// fmt.Println("before loop", p.curToken, " --- ", p.peekToken, " ------ ", p.nextPrecedence())
+
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
-		// fmt.Println("haa inside for loop", p.peekToken)
 		operator, ok := p.infixParse[p.peekToken.Type]
 
 		if !ok {
+
 			return leftexp
 		}
 
@@ -265,7 +269,7 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 
 //for non integer expression
 func (p *Parser) identifierParse() ast.Expression {
-	// fmt.Println("hry thi is ident ", p.curToken)
+
 	return &ast.Identifier{Token: p.curToken}
 }
 
@@ -293,7 +297,6 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 		Operator: p.curToken.Value,
 		Left:     leftExp,
 	}
-
 	presentPrecedence := p.currentPrecedence()
 
 	p.rollToken()
@@ -303,6 +306,31 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 	infixExp.Right = rightStatement
 
 	return infixExp
+
+}
+
+func (p *Parser) parseArray(leftExp ast.Expression) ast.Expression {
+
+	arrayContent := &ast.InfixExp{
+
+		Token:    p.curToken,
+		Operator: p.curToken.Value,
+		Left:     leftExp,
+	}
+
+	presentPrecedence := p.currentPrecedence()
+
+	p.rollToken()
+
+	rightStatement := p.ParsingExpression(presentPrecedence)
+
+	arrayContent.Right = rightStatement
+
+	if !p.expectingToken(token.RSQBRACKET) {
+		return nil
+	}
+
+	return arrayContent
 }
 
 func (p *Parser) parsePrefix() ast.Expression {
@@ -563,4 +591,34 @@ func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
 
 	}
 	return ftnCall
+}
+
+func (p *Parser) arrayParse() ast.Expression {
+
+	arrayElm := &ast.ArrayType{
+		Token: p.curToken,
+	}
+
+	arrayElm.ArrayBody = p.arrayBodyParse()
+
+	return arrayElm
+
+}
+
+func (p *Parser) arrayBodyParse() []ast.Expression {
+
+	var arrayInside []ast.Expression
+	p.rollToken()
+
+	arrayInside = append(arrayInside, p.ParsingExpression(GENERAL))
+	for p.peekTokenCheck(token.COMMA) && !p.peekTokenCheck(token.RCURLYBRAC) {
+
+		p.rollToken()
+		p.rollToken()
+		arrayInside = append(arrayInside, p.ParsingExpression(GENERAL))
+	}
+
+	p.rollToken()
+
+	return arrayInside
 }

@@ -6,14 +6,16 @@ import (
 
 var Precedence = map[string]int{
 
-	token.ASSIGN:   ASSIGN,
-	token.PLUS:     PLUSMINUS,
-	token.MINUS:    PLUSMINUS,
-	token.GREATER:  LESSGREAT,
-	token.LESSER:   LESSGREAT,
-	token.EQUAL:    EQUAL,
-	token.NEQUAL:   EQUAL,
-	token.MULTI:    CROSSDIV,
-	token.DIVIDE:   CROSSDIV,
-	token.LBRACKET: CALL,
+	token.ASSIGN:     ASSIGN,
+	token.PLUS:       PLUSMINUS,
+	token.MINUS:      PLUSMINUS,
+	token.GREATER:    LESSGREAT,
+	token.LESSER:     LESSGREAT,
+	token.EQUAL:      EQUAL,
+	token.NEQUAL:     EQUAL,
+	token.MULTI:      CROSSDIV,
+	token.DIVIDE:     CROSSDIV,
+	token.MODULO:     CROSSDIV,
+	token.LBRACKET:   CALL,
+	token.LSQBRACKET: ASSIGN,
 }
