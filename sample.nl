@@ -1,14 +1,9 @@
+var sam = 0;
 
+var kal = ns("enter the string : ");
 
-var sm = [8,1,4,2,6,"hello","friend"];
-
-var counter = ni("enter a number : ");
-
-var flag = 1
-while(flag<counter){
-
-    np(sm[flag]);
-
-    flag = flag+1;
-
+while(sam < len(kal) -1 ){
+    np("kooi", kal[sam]);
+    sam = sam+1;
+    np("hay");
 }

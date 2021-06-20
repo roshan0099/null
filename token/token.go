@@ -35,6 +35,10 @@ const (
 	STRING = "STRING"
 
 	FUNCTION = "FUNCTION"
+
+	//builtin
+	LENGTH = "LENGTH"
+
 	//boolean
 	TRUE  = "TRUE"
 	FALSE = "FALSE"
@@ -67,6 +71,7 @@ var keywords = map[string]string{
 	"else":   ELSE,
 	"while":  WHILE,
 	"ftn":    FUNCTION,
+	"len":    LENGTH,
 }
 
 func FindKey(word string) string {

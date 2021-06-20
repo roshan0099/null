@@ -179,6 +179,7 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 }
 
 func indexVal(index object.Object, name ast.Expression, env *object.Env) object.Object {
+
 	val, _ := strconv.Atoi(index.Inspect())
 
 	kal, _ := env.GetEnv(name.String())
@@ -206,6 +207,7 @@ func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
 
 	if val, _ := object.Builtin[choice.String()]; val != nil {
 		builtin := val.(*object.Wrapper)
+
 		return builtin
 	}
 
@@ -228,8 +230,14 @@ func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 
 	//to check if it's funtion to accept user input
 	case *ast.FunctionCall:
+		if choice.FunctionName.String() == "ns" || choice.FunctionName.String() == "ni" {
+			niAndns(name.Name.String(), choice, env)
+		} else if choice.FunctionName.String() == "len" {
 
-		niAndns(name.Name.String(), choice, env)
+			length := builtinLen(choice.ArgumentsCall[0].String(), env)
+
+			env.SetEnv(name.Name.String(), length)
+		}
 
 	default:
 
@@ -365,18 +373,28 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 
 	args := choice.(*ast.FunctionCall).ArgumentsCall
 
-	analysedArgs := []object.Object{}
+	//to avoid unnecessary declaration
+	if len(args) > 0 {
 
-	for _, val := range args {
-		analysedArgs = append(analysedArgs, Eval(val, env))
+		noutResponse := builtin.(*object.Wrapper)
+
+		if noutResponse.Name == "np" {
+			analysedArgs := []object.Object{}
+
+			for _, val := range args {
+				analysedArgs = append(analysedArgs, Eval(val, env))
+			}
+
+			response := noutResponse.WrapperFunc(analysedArgs)
+
+			// fmt.Println("there you g maite finally : ", kal)
+			return response
+		} else if noutResponse.Name == "len" {
+			return builtinLen(args[0].String(), env)
+		}
+
 	}
-
-	noutResponse := builtin.(*object.Wrapper)
-
-	response := noutResponse.WrapperFunc(analysedArgs)
-
-	// fmt.Println("there you g maite finally : ", kal)
-	return response
+	return nil
 }
 
 func evaluateCall(ch []ast.Expression, env *object.Env) []object.Object {
@@ -420,5 +438,15 @@ func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
 
 		env.SetEnv(name, input)
 
+	}
+}
+
+func builtinLen(name string, env *object.Env) object.Object {
+
+	variable, _ := env.GetEnv(name)
+
+	return &object.Integer{
+
+		Val: int64(len(variable.Inspect())),
 	}
 }

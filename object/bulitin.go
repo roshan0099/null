@@ -39,4 +39,14 @@ var Builtin = map[string]Object{
 
 		},
 	},
+
+	"len": &Wrapper{
+		Name: "len",
+		WrapperFunc: func(args []Object) Object {
+
+			noutStore := &Nout{}
+			return noutStore
+
+		},
+	},
 }

@@ -54,7 +54,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.STRING, parse.stringParse)
 	parse.assignPrefix(token.FUNCTION, parse.parseFunction)
 	parse.assignPrefix(token.LSQBRACKET, parse.arrayParse)
-
+	parse.assignPrefix(token.LENGTH, parse.lengthParse)
 	// parse.assignInfix(token.ASSIGN, parse.assignMarker)
 
 	parse.infixParse = make(map[string]infixFuncs)
@@ -247,10 +247,12 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 		p.errorMsg(p.curToken.Value)
 		return nil
 	}
-
+	// fmt.Println("======before : ", p.curToken, order)
 	leftexp := prefix()
+	// fmt.Println("+++++++++after : ", p.curToken, order, "----", p.nextPrecedence())
 
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
+		//fmt.Println("*************>>", p.curToken, p.peekToken)
 		operator, ok := p.infixParse[p.peekToken.Type]
 
 		if !ok {
@@ -297,8 +299,8 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 		Operator: p.curToken.Value,
 		Left:     leftExp,
 	}
-	presentPrecedence := p.currentPrecedence()
 
+	presentPrecedence := p.currentPrecedence()
 	p.rollToken()
 
 	rightStatement := p.ParsingExpression(presentPrecedence)
@@ -517,10 +519,12 @@ func (p *Parser) parseFunction() ast.Expression {
 	}
 
 	p.rollToken()
+
 	if p.presentToken(token.LBRACKET) && p.peekTokenCheck(token.RBRACKET) {
 		function.Arguments = nil
 
 		p.rollToken()
+
 	} else {
 
 		p.rollToken()
@@ -553,8 +557,6 @@ func (p *Parser) parseFunction() ast.Expression {
 
 	function.Body = p.StmtBody()
 
-	// fmt.Println("hey this is : ", function)
-
 	return function
 
 	// function.Arguments = p.argumentOfFunction()
@@ -563,17 +565,16 @@ func (p *Parser) parseFunction() ast.Expression {
 func (p *Parser) argumentOfFunction() []*ast.Identifier {
 
 	//	ftnCall.ArgumentsCall := []*ast.Identifier{}
-
 	return nil
 }
 
 func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
-
 	ftnCall := &ast.FunctionCall{
 		Token:        p.curToken,
 		FunctionName: ftnName,
 	}
-
+	// fmt.Printf("--->%T \n", ftnName)
+	// fmt.Println("next line : ", ftnName.(*ast.Identifier).Token.Value)
 	if p.expectingToken(token.RBRACKET) {
 		return ftnCall
 	}
@@ -590,6 +591,7 @@ func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
 		ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
 
 	}
+	// fmt.Println("yoo : ", p.curToken, ">>> ", p.peekToken)
 	return ftnCall
 }
 
@@ -621,4 +623,37 @@ func (p *Parser) arrayBodyParse() []ast.Expression {
 	p.rollToken()
 
 	return arrayInside
+}
+
+func (p *Parser) lengthParse() ast.Expression {
+	// fmt.Println("yoo")
+
+	name := &ast.Identifier{
+		Token: token.Token{
+			Type:  token.IDENT,
+			Value: "len",
+		},
+	}
+
+	ftnCall := &ast.FunctionCall{
+		Token:        p.curToken,
+		FunctionName: name,
+	}
+
+	if p.expectingToken(token.RBRACKET) {
+		return ftnCall
+	}
+
+	p.rollToken()
+	ftnCall.ArgumentsCall = []ast.Expression{}
+	p.rollToken()
+	ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
+
+	if p.peekTokenCheck(token.COMMA) {
+
+		return nil
+	}
+
+	p.rollToken()
+	return ftnCall
 }
