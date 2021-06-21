@@ -24,8 +24,7 @@ var Builtin = map[string]Object{
 		Name: "ns",
 		WrapperFunc: func(args []Object) Object {
 
-			noutStore := &Nout{}
-			return noutStore
+			return nil
 
 		},
 	},
@@ -34,8 +33,7 @@ var Builtin = map[string]Object{
 		Name: "ni",
 		WrapperFunc: func(args []Object) Object {
 
-			noutStore := &Nout{}
-			return noutStore
+			return nil
 
 		},
 	},
@@ -44,8 +42,18 @@ var Builtin = map[string]Object{
 		Name: "len",
 		WrapperFunc: func(args []Object) Object {
 
-			noutStore := &Nout{}
-			return noutStore
+			// noutStore := &Nout{}
+			return nil
+
+		},
+	},
+
+	"chr": &Wrapper{
+		Name: "chr",
+		WrapperFunc: func(args []Object) Object {
+
+			// noutStore := &Nout{}
+			return nil
 
 		},
 	},

@@ -573,9 +573,9 @@ func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
 		Token:        p.curToken,
 		FunctionName: ftnName,
 	}
-	// fmt.Printf("--->%T \n", ftnName)
-	// fmt.Println("next line : ", ftnName.(*ast.Identifier).Token.Value)
+
 	if p.expectingToken(token.RBRACKET) {
+
 		return ftnCall
 	}
 
@@ -591,7 +591,7 @@ func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
 		ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
 
 	}
-	// fmt.Println("yoo : ", p.curToken, ">>> ", p.peekToken)
+
 	return ftnCall
 }
 
@@ -626,7 +626,6 @@ func (p *Parser) arrayBodyParse() []ast.Expression {
 }
 
 func (p *Parser) lengthParse() ast.Expression {
-	// fmt.Println("yoo")
 
 	name := &ast.Identifier{
 		Token: token.Token{

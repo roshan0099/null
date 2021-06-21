@@ -56,6 +56,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	case *ast.FunctionCall:
 
 		name := Eval(ch.FunctionName, env)
+
 		return evalFtnCall(ch, name, env)
 
 	case *ast.IfStatement:
@@ -237,6 +238,10 @@ func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 			length := builtinLen(choice.ArgumentsCall[0].String(), env)
 
 			env.SetEnv(name.Name.String(), length)
+		} else if choice.FunctionName.String() == "chr" {
+
+			fmt.Println("this is chr : ")
+
 		}
 
 	default:
@@ -387,10 +392,17 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 
 			response := noutResponse.WrapperFunc(analysedArgs)
 
-			// fmt.Println("there you g maite finally : ", kal)
 			return response
+
 		} else if noutResponse.Name == "len" {
+
 			return builtinLen(args[0].String(), env)
+
+		} else if noutResponse.Name == "chr" {
+
+			res := Eval(args[0], env)
+
+			return asciiChar(res, env)
 		}
 
 	}
@@ -449,4 +461,18 @@ func builtinLen(name string, env *object.Env) object.Object {
 
 		Val: int64(len(variable.Inspect())),
 	}
+}
+
+func asciiChar(word object.Object, env *object.Env) object.Object {
+
+	switch ch := word.(type) {
+
+	case *object.Integer:
+
+		return &object.StringType{
+			Word: string(ch.Val),
+		}
+	}
+
+	return nil
 }

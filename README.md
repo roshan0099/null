@@ -15,6 +15,7 @@ So far null is in its bare bones, it has variable declarition which are string a
 - [x] array
 - [x] loop
 - [x] accepts user input
+- [x] ascii conversion 
 - [x] if - else condition
 - [ ] if - else if
 - [ ] simple file handling
