@@ -35,6 +35,15 @@ var Builtin = map[string]Object{
 
 			return nil
 
+			// noutStore := &Nout{}
+
+			// for _, val := range args {
+
+			// 	noutStore.Statements = append(noutStore.Statements, val)
+			// }
+
+			// return noutStore
+
 		},
 	},
 

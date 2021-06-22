@@ -17,7 +17,7 @@ func ReadingProcess(input string, env *object.Env) {
 	parse := parser.New(lex)
 	// fmt.Println("kool")
 	prgm := parse.ParseProgram()
-	// fmt.Println("hmm then")
+	// fmt.Println("hmm then", prgm)
 	eval := evaluation.Wrapper(prgm, env)
 	// fmt.Println("lMO : ", eval)
 	for _, val := range eval.(*object.BlockStmts).Block {

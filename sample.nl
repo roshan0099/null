@@ -1,12 +1,12 @@
-var sam = 0;
+var sam = 2;
 
-var kal = ns("enter the string : ");
-
-while(sam < len(kal) -1 ){
-    if(sam%2 == 0){
-        np("yaaa");
+while(sam > 1 ){
+    
+    sam = ni("for sam : ");
+    var jan = ni("type a no to check if it's even ");
+    if(jan%2 == 0){
+        np("eveeennnn!!!");
     }
-    np("mass");
-    sam = sam+1;
+
 }
 

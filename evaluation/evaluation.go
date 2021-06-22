@@ -226,6 +226,7 @@ func ErrorMsgUpdate(message string) object.Object {
 
 func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 
+	fmt.Println("heyyal")
 	//checking to know if the user input is required or not
 	switch choice := name.Value.(type) {
 
@@ -404,6 +405,9 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 
 			return asciiChar(res, env)
 		}
+		// else if noutResponse.Name == "ni" {
+
+		// }
 
 	}
 	return nil
@@ -432,7 +436,8 @@ func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
 			fmt.Println(choice.String())
 
 		}
-		fmt.Scanf("%s", &input.Word)
+
+		fmt.Scanln(&input.Word)
 
 		env.SetEnv(name, input)
 
@@ -446,7 +451,7 @@ func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
 
 		}
 
-		fmt.Scanf("%d", &input.Val)
+		fmt.Scanln(&input.Val)
 
 		env.SetEnv(name, input)
 
