@@ -144,10 +144,18 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 			rightExp := Eval(ch.Right, env)
 
-			switch ch := ch.Right.(type) {
+			switch choice2 := ch.Right.(type) {
 
 			case *ast.FunctionCall:
-				niAndns(choice.String(), ch, env)
+
+				if choice2.FunctionName.String() == "ni" || choice2.FunctionName.String() == "ns" {
+					niAndns(choice.String(), choice2, env)
+
+				} else if choice2.FunctionName.String() == "chr" {
+
+					env.ChangeVal(choice.String(), rightExp)
+
+				}
 
 			default:
 
@@ -226,7 +234,6 @@ func ErrorMsgUpdate(message string) object.Object {
 
 func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 
-	fmt.Println("heyyal")
 	//checking to know if the user input is required or not
 	switch choice := name.Value.(type) {
 
@@ -241,8 +248,7 @@ func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 			env.SetEnv(name.Name.String(), length)
 		} else if choice.FunctionName.String() == "chr" {
 
-			fmt.Println("this is chr : ")
-
+			env.SetEnv(name.Name.String(), exp)
 		}
 
 	default:
@@ -477,6 +483,10 @@ func asciiChar(word object.Object, env *object.Env) object.Object {
 		return &object.StringType{
 			Word: string(ch.Val),
 		}
+
+	default:
+		fmt.Println("oops this function is currently under work")
+		os.Exit(0)
 	}
 
 	return nil

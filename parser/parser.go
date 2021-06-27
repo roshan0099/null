@@ -5,6 +5,7 @@ import (
 	"null/ast"
 	"null/lexer"
 	"null/token"
+	"os"
 	"strconv"
 )
 
@@ -176,7 +177,7 @@ func (p *Parser) expectingToken(tokenMatch string) bool {
 		// fmt.Println("this is expecting section ", p.curToken)
 		return true
 	} else {
-		p.ErrorValidity(tokenMatch)
+		// p.ErrorValidity(tokenMatch)
 		return false
 	}
 }
@@ -186,11 +187,12 @@ func (p *Parser) peekTokenCheck(tokenMatch string) bool {
 }
 
 //error validation should be changed
-func (p *Parser) ErrorValidity(tokenMatch string) {
+func (p *Parser) errorValidity(tokenMatch string) {
 	// fmt.Println("error validity !!")
-	message := fmt.Sprintf("oops was expecting %s but got %s :( ", tokenMatch, p.peekToken.Value)
+	fmt.Printf("parsing Error : Was expecting %s but got %s ", tokenMatch, p.peekToken.Value)
 
-	p.err = append(p.err, message)
+	// p.err = append(p.err, message)
+	os.Exit(0)
 	// fmt.Println(p.err)
 }
 
@@ -591,7 +593,7 @@ func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
 		ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
 
 	}
-
+	_ = p.errorStop(token.RBRACKET)
 	return ftnCall
 }
 
@@ -655,4 +657,14 @@ func (p *Parser) lengthParse() ast.Expression {
 
 	p.rollToken()
 	return ftnCall
+}
+
+func (p *Parser) errorStop(token string) bool {
+
+	if token == p.peekToken.Value {
+		return true
+	} else {
+		p.errorValidity(token)
+	}
+	return false
 }
