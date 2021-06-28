@@ -398,8 +398,7 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 			}
 
 			response := noutResponse.WrapperFunc(analysedArgs)
-
-			return response
+			fmt.Println(response.Inspect())
 
 		} else if noutResponse.Name == "len" {
 
@@ -411,10 +410,6 @@ func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) 
 
 			return asciiChar(res, env)
 		}
-		// else if noutResponse.Name == "ni" {
-
-		// }
-
 	}
 	return nil
 }
@@ -432,6 +427,7 @@ func evaluateCall(ch []ast.Expression, env *object.Env) []object.Object {
 }
 
 func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
+
 	if choice.FunctionName.String() == "ns" {
 
 		input := &object.StringType{}

@@ -650,9 +650,9 @@ func (p *Parser) lengthParse() ast.Expression {
 	p.rollToken()
 	ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
 
-	if p.peekTokenCheck(token.COMMA) {
+	if !p.peekTokenCheck(token.RBRACKET) {
 
-		return nil
+		p.errorStop(token.RBRACKET)
 	}
 
 	p.rollToken()
