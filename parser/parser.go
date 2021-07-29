@@ -118,6 +118,9 @@ func (p *Parser) ParseStat() ast.Statement {
 
 		return p.ParseReturn()
 
+	case token.FILE:
+		return p.ParseFile()
+
 	case token.WHILE:
 
 		// fmt.Println("kaaa")
@@ -667,4 +670,54 @@ func (p *Parser) errorStop(token string) bool {
 		p.errorValidity(token)
 	}
 	return false
+}
+
+func (p *Parser) ParseFile() ast.Statement {
+
+	file := &ast.FileHandler{
+		Token: p.curToken,
+	}
+
+	p.rollToken()
+	file.FileName = p.curToken.Value
+
+	if !p.peekTokenCheck(token.ASSIGN) {
+
+		p.errorStop(token.ASSIGN)
+	}
+
+	file.Arguments = []ast.Expression{}
+
+	p.rollToken()
+	p.rollToken()
+
+	if !p.presentToken(token.LBRACKET) {
+		p.errorStop(token.LBRACKET)
+	}
+
+	p.rollToken()
+	// fmt.Println(p.curToken.Type)
+	if p.curToken.Type == token.STRING && p.peekTokenCheck(token.GREATER) {
+		file.Arguments = append(file.Arguments, &ast.StringLine{
+			Token: p.curToken,
+			Line:  p.curToken.Value,
+		})
+
+		p.rollToken()
+		p.rollToken()
+
+		file.Arguments = append(file.Arguments, &ast.StringLine{
+			Token: p.curToken,
+			Line:  p.curToken.Value,
+		})
+
+	}
+
+	if !p.peekTokenCheck(token.RBRACKET) {
+		p.errorStop(token.RBRACKET)
+	}
+
+	p.rollToken()
+
+	return file
 }

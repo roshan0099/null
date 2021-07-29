@@ -59,6 +59,9 @@ const (
 
 	//LOOP
 	WHILE = "WHILE"
+
+	//FILE
+	FILE = "FILE"
 )
 
 var keywords = map[string]string{
@@ -72,6 +75,7 @@ var keywords = map[string]string{
 	"while":  WHILE,
 	"ftn":    FUNCTION,
 	"len":    LENGTH,
+	"FILE":   FILE,
 }
 
 func FindKey(word string) string {

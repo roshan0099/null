@@ -358,3 +358,24 @@ func (a *ArrayType) String() string {
 	return concatInfo.String()
 }
 func (a *ArrayType) expressionNode() {}
+
+type FileHandler struct {
+	Token     token.Token
+	FileName  string
+	Arguments []Expression
+}
+
+func (f *FileHandler) TokenLiteral() string { return "File" }
+func (f *FileHandler) statementNode()       {}
+func (f *FileHandler) String() string {
+
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString(f.Token.Value + " " + f.FileName + " = ")
+
+	for _, val := range f.Arguments {
+		concatInfo.WriteString(val.String() + " ")
+	}
+
+	return concatInfo.String()
+}

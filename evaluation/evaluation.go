@@ -2,6 +2,7 @@ package evaluation
 
 import (
 	"fmt"
+	"io/ioutil"
 	"null/ast"
 	"null/object"
 	"null/token"
@@ -38,8 +39,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		collection = evaluate(ch.Statements, env)
 
 	case *ast.ParseExp:
-		// fmt.Println(ch.Exp)
-		// fmt.Println("this is inside parse exp : ", ch.Token.Type, " -- ", ch.Exp)
+
 		return Eval(ch.Exp, env)
 
 	case *ast.BooleanValue:
@@ -65,7 +65,6 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		return conditionBool
 
 	case *ast.VarStmt:
-		// fmt.Println("it's here", ch.Token.Type, ch.Name, ch.Value)
 
 		rightExp := Eval(ch.Value, env)
 
@@ -103,13 +102,16 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 		return stringStore(ch, env)
 
+	case *ast.FileHandler:
+		evalFile(ch, env)
+		// return nil
 	}
 
 	return nil
 }
 
 func stringStore(ch *ast.StringLine, env *object.Env) object.Object {
-	// fmt.Println("======", ch.Token)
+
 	return &object.StringType{
 		Word: ch.Line,
 	}
@@ -118,9 +120,9 @@ func stringStore(ch *ast.StringLine, env *object.Env) object.Object {
 
 func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
 
-	conditionLoop := Eval(choice.Condition, env)
+	conditionLoop := whileConditionCheck(choice.Condition, env)
 
-	if conditionLoop.Inspect() != "false" {
+	if conditionLoop {
 		BodyStmtLoop := Eval(choice.Body, env)
 		if BodyStmtLoop.Inspect() != "" {
 			//printing the contents in the loop
@@ -167,6 +169,16 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 			}
 			return nil
+		case *ast.InfixExp:
+
+			index, _ := strconv.Atoi(choice.Right.String())
+			value := &object.StringType{
+				Word: ch.Right.String(),
+			}
+
+			env.IndexValChange(choice.Left.String(), index, value)
+
+			return nil
 
 		default:
 			return ErrorMsgUpdate("Variable declaration not done right")
@@ -183,6 +195,7 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 	leftExp := Eval(ch.Left, env)
 
 	rightExp := Eval(ch.Right, env)
+
 	return evaluateInfix(leftExp, rightExp, ch.Operator, env)
 
 }
@@ -197,9 +210,9 @@ func indexVal(index object.Object, name ast.Expression, env *object.Env) object.
 
 	case *object.StringType:
 
-		dam := kal.(*object.StringType).Word[val]
+		indexedWord := kal.(*object.StringType).Word[val]
 		return &object.StringType{
-			Word: string(dam),
+			Word: string(indexedWord),
 		}
 
 	default:
@@ -256,7 +269,6 @@ func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 		env.SetEnv(name.Name.String(), exp)
 
 	}
-	// fmt.Println(name.String(), name.TokenLiteral())
 
 }
 
@@ -327,32 +339,50 @@ func settingBoolean(val bool) object.Object {
 
 func evaluateInfix(leftExp, rightExp object.Object, operator string, env *object.Env) object.Object {
 
-	leftNumb, rightNumb := leftExp.(*object.Integer).Val, rightExp.(*object.Integer).Val
-	if leftExp.Type() == "INTEGER" && rightExp.Type() == "INTEGER" {
+	switch leftExp.(type) {
+	case *object.StringType:
+
+		leftStmt, rightStmt := leftExp.(*object.StringType).Word, rightExp.(*object.StringType).Word
+
 		switch operator {
-		case token.PLUS:
-			return &object.Integer{Val: leftNumb + rightNumb}
 
-		case token.MINUS:
-			return &object.Integer{Val: leftNumb - rightNumb}
+		case token.NEQUAL:
 
-		case token.DIVIDE:
-			return &object.Integer{Val: leftNumb / rightNumb}
+			return settingBoolean(leftStmt != rightStmt)
 
-		case token.MODULO:
-			return &object.Integer{Val: leftNumb % rightNumb}
+		default:
+			return nil
+		}
 
-		case token.MULTI:
-			return &object.Integer{Val: leftNumb * rightNumb}
+	case *object.Integer:
 
-		case token.EQUAL:
-			return settingBoolean(leftNumb == rightNumb)
+		leftNumb, rightNumb := leftExp.(*object.Integer).Val, rightExp.(*object.Integer).Val
+		if leftExp.Type() == "INTEGER" && rightExp.Type() == "INTEGER" {
+			switch operator {
+			case token.PLUS:
+				return &object.Integer{Val: leftNumb + rightNumb}
 
-		case token.GREATER:
-			return settingBoolean(leftNumb > rightNumb)
+			case token.MINUS:
+				return &object.Integer{Val: leftNumb - rightNumb}
 
-		case token.LESSER:
-			return settingBoolean(leftNumb < rightNumb)
+			case token.DIVIDE:
+				return &object.Integer{Val: leftNumb / rightNumb}
+
+			case token.MODULO:
+				return &object.Integer{Val: leftNumb % rightNumb}
+
+			case token.MULTI:
+				return &object.Integer{Val: leftNumb * rightNumb}
+
+			case token.EQUAL:
+				return settingBoolean(leftNumb == rightNumb)
+
+			case token.GREATER:
+				return settingBoolean(leftNumb > rightNumb)
+
+			case token.LESSER:
+				return settingBoolean(leftNumb < rightNumb)
+			}
 		}
 	}
 	return nil
@@ -486,4 +516,34 @@ func asciiChar(word object.Object, env *object.Env) object.Object {
 	}
 
 	return nil
+}
+
+func evalFile(filePoint *ast.FileHandler, env *object.Env) {
+
+	if filePoint.Arguments[1].String() == "r" {
+		text, err := ioutil.ReadFile(filePoint.Arguments[0].String())
+
+		if err != nil {
+			ErrorMsgUpdate("Error : couldnt find the file \nUsual Reasons : Wrong directory/mispelled file name ")
+		}
+
+		//converting the text to object
+		evalText := &object.StringType{
+			Word: string(text),
+		}
+
+		env.SetEnv(filePoint.FileName, evalText)
+
+	} else if filePoint.Arguments[1].String() == "w" {
+		ErrorMsgUpdate("Evaluation Error : This function is currently under development")
+	} else {
+		ErrorMsgUpdate("Error : Invalid file mehtod")
+	}
+}
+
+func whileConditionCheck(condition ast.Expression, env *object.Env) bool {
+
+	parsedCondition := Eval(condition, env)
+
+	return parsedCondition.(*object.Boolean).Value
 }
