@@ -3,7 +3,12 @@ np("yoo");
 var i = 0;
 np("ith kollaam");
 while(saa[i] != "/"){
-    np("this is ",saa[i]);
+    
+    if(saa[i] == " "){
+        np("yaay");
+    }
+
     i = i+1;
+
 }
 

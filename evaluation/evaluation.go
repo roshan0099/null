@@ -1,6 +1,7 @@
 package evaluation
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"null/ast"
@@ -350,7 +351,13 @@ func evaluateInfix(leftExp, rightExp object.Object, operator string, env *object
 
 			return settingBoolean(leftStmt != rightStmt)
 
+		case token.EQUAL:
+
+			return settingBoolean(leftStmt == rightStmt)
+
 		default:
+
+			ErrorMsgUpdate("Condition not supported by null langauge")
 			return nil
 		}
 
@@ -468,8 +475,10 @@ func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
 			fmt.Println(choice.String())
 
 		}
-
-		fmt.Scanln(&input.Word)
+		in := bufio.NewScanner(os.Stdin)
+		in.Scan()
+		input.Word = in.Text()
+		// fmt.Scanln(&input.Word)
 
 		env.SetEnv(name, input)
 
