@@ -17,6 +17,12 @@ So far null is in its bare bones, it has variable declarition which are string a
 - [x] accepts user input
 - [x] ascii 
 - [x] if - else condition
-- [ ] if - else if
+- [x] if - else if
 - [ ] simple file handling
 - [ ] Function
+
+## Sample Code
+
+> Print first 10 even numbers
+
+![Sample-Code](images/even.png)
