@@ -38,3 +38,17 @@ func (e *Env) ChangeVal(name string, elm Object) bool {
 
 	return ok
 }
+
+func (e *Env) IndexValChange(name string, index int, value Object) bool {
+
+	val, ok := e.Store[name]
+
+	if ok {
+		val.(*ArrayContents).Body[index] = value
+		e.ChangeVal(name, val)
+
+		return ok
+	}
+
+	return ok
+}

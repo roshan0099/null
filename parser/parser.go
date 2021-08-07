@@ -5,6 +5,7 @@ import (
 	"null/ast"
 	"null/lexer"
 	"null/token"
+	"os"
 	"strconv"
 )
 
@@ -12,6 +13,7 @@ const (
 	_ = iota
 	GENERAL
 	ASSIGN
+	ARRAY
 	EQUAL
 	LESSGREAT
 	PLUSMINUS
@@ -54,7 +56,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parse.assignPrefix(token.STRING, parse.stringParse)
 	parse.assignPrefix(token.FUNCTION, parse.parseFunction)
 	parse.assignPrefix(token.LSQBRACKET, parse.arrayParse)
-
+	parse.assignPrefix(token.LENGTH, parse.lengthParse)
 	// parse.assignInfix(token.ASSIGN, parse.assignMarker)
 
 	parse.infixParse = make(map[string]infixFuncs)
@@ -117,19 +119,15 @@ func (p *Parser) ParseStat() ast.Statement {
 
 		return p.ParseReturn()
 
-	case token.WHILE:
+	case token.FILE:
+		return p.ParseFile()
 
-		// fmt.Println("kaaa")
-		// return &ast.Sample{
-		// 	SampleText: "blooo",
-		// }
+	case token.WHILE:
 
 		return p.WhileStmt()
 
 	default:
 		return p.ParseExpressionStmt()
-		// fmt.Println("hello : ", p.curToken)
-		// return nil
 	}
 
 }
@@ -171,12 +169,12 @@ func (p *Parser) ParseVar() *ast.VarStmt {
 //func to check if the coming up token is what we expected or not
 func (p *Parser) expectingToken(tokenMatch string) bool {
 	if p.peekTokenCheck(tokenMatch) {
-		// fmt.Println("this is expecting section ! ", p.curToken)
+
 		p.rollToken()
-		// fmt.Println("this is expecting section ", p.curToken)
+
 		return true
 	} else {
-		p.ErrorValidity(tokenMatch)
+
 		return false
 	}
 }
@@ -186,17 +184,16 @@ func (p *Parser) peekTokenCheck(tokenMatch string) bool {
 }
 
 //error validation should be changed
-func (p *Parser) ErrorValidity(tokenMatch string) {
-	// fmt.Println("error validity !!")
-	message := fmt.Sprintf("oops was expecting %s but got %s :( ", tokenMatch, p.peekToken.Value)
+func (p *Parser) errorValidity(tokenMatch string) {
 
-	p.err = append(p.err, message)
-	// fmt.Println(p.err)
+	fmt.Printf("parsing Error : Was expecting %s but got %s ", tokenMatch, p.peekToken.Value)
+
+	os.Exit(0)
 }
 
 //just to return error
 func (p *Parser) Err() []string {
-	// fmt.Println("in here : ", p.err)
+
 	return p.err
 }
 
@@ -230,7 +227,7 @@ func (p *Parser) ParseExpressionStmt() *ast.ParseExp {
 	prgrmStmt := &ast.ParseExp{
 		Token: p.curToken,
 	}
-	// fmt.Println("this is exp", p.curToken)
+
 	prgrmStmt.Exp = p.ParsingExpression(GENERAL)
 
 	if p.peekTokenCheck(token.SEMICOLON) {
@@ -251,8 +248,8 @@ func (p *Parser) ParsingExpression(order int) ast.Expression {
 	leftexp := prefix()
 
 	for !p.peekTokenCheck(token.SEMICOLON) && order < p.nextPrecedence() {
-		operator, ok := p.infixParse[p.peekToken.Type]
 
+		operator, ok := p.infixParse[p.peekToken.Type]
 		if !ok {
 
 			return leftexp
@@ -298,7 +295,6 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 		Left:     leftExp,
 	}
 	presentPrecedence := p.currentPrecedence()
-
 	p.rollToken()
 
 	rightStatement := p.ParsingExpression(presentPrecedence)
@@ -311,11 +307,11 @@ func (p *Parser) parseInfix(leftExp ast.Expression) ast.Expression {
 
 func (p *Parser) parseArray(leftExp ast.Expression) ast.Expression {
 
-	arrayContent := &ast.InfixExp{
+	arrayContent := &ast.ArrayCall{
 
-		Token:    p.curToken,
-		Operator: p.curToken.Value,
-		Left:     leftExp,
+		Token: p.curToken,
+		// Operator: p.curToken.Value,
+		Name: leftExp.String(),
 	}
 
 	presentPrecedence := p.currentPrecedence()
@@ -324,7 +320,7 @@ func (p *Parser) parseArray(leftExp ast.Expression) ast.Expression {
 
 	rightStatement := p.ParsingExpression(presentPrecedence)
 
-	arrayContent.Right = rightStatement
+	arrayContent.Index = rightStatement
 
 	if !p.expectingToken(token.RSQBRACKET) {
 		return nil
@@ -366,22 +362,32 @@ func (p *Parser) parseGroupExp() ast.Expression {
 
 func (p *Parser) ifExpression() ast.Expression {
 
+	ifFirstStmt := &ast.ElfStatement{
+		Token: p.curToken,
+	}
+
 	ifStmt := &ast.IfStatement{
 		Token: p.curToken,
 	}
+	ifStmt.ElfStmt = []*ast.ElfStatement{}
 
 	if !p.expectingToken(token.LBRACKET) {
 		return nil
 	}
 
-	ifStmt.Condition = p.ParsingExpression(GENERAL)
+	ifFirstStmt.Condition = p.ParsingExpression(GENERAL)
 
 	if !p.expectingToken(token.LCURLYBRAC) {
 		return nil
 	}
 
-	ifStmt.Body = p.ifStatementBody()
+	ifFirstStmt.Body = p.ifStatementBody()
+	ifStmt.ElfStmt = append(ifStmt.ElfStmt, ifFirstStmt)
 
+	if p.peekTokenCheck(token.ELF) {
+		p.elfStatement(ifStmt)
+
+	}
 	if p.peekTokenCheck(token.ELSE) {
 		p.rollToken()
 		if !p.expectingToken(token.LCURLYBRAC) {
@@ -395,6 +401,33 @@ func (p *Parser) ifExpression() ast.Expression {
 	}
 
 	return ifStmt
+}
+
+func (p *Parser) elfStatement(elfArr *ast.IfStatement) {
+
+BLOCK:
+	elif := &ast.ElfStatement{}
+
+	p.rollToken()
+
+	if !p.expectingToken(token.LBRACKET) {
+		return
+	}
+
+	elif.Condition = p.ParsingExpression(GENERAL)
+
+	if !p.expectingToken(token.LCURLYBRAC) {
+		return
+	}
+
+	elif.Body = p.ifStatementBody()
+
+	elfArr.ElfStmt = append(elfArr.ElfStmt, elif)
+	if p.peekTokenCheck(token.ELF) {
+
+		goto BLOCK
+	}
+
 }
 
 func (p *Parser) ifStatementBody() *ast.BodyStatement {
@@ -517,10 +550,12 @@ func (p *Parser) parseFunction() ast.Expression {
 	}
 
 	p.rollToken()
+
 	if p.presentToken(token.LBRACKET) && p.peekTokenCheck(token.RBRACKET) {
 		function.Arguments = nil
 
 		p.rollToken()
+
 	} else {
 
 		p.rollToken()
@@ -553,8 +588,6 @@ func (p *Parser) parseFunction() ast.Expression {
 
 	function.Body = p.StmtBody()
 
-	// fmt.Println("hey this is : ", function)
-
 	return function
 
 	// function.Arguments = p.argumentOfFunction()
@@ -563,18 +596,17 @@ func (p *Parser) parseFunction() ast.Expression {
 func (p *Parser) argumentOfFunction() []*ast.Identifier {
 
 	//	ftnCall.ArgumentsCall := []*ast.Identifier{}
-
 	return nil
 }
 
 func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
-
 	ftnCall := &ast.FunctionCall{
 		Token:        p.curToken,
 		FunctionName: ftnName,
 	}
 
 	if p.expectingToken(token.RBRACKET) {
+
 		return ftnCall
 	}
 
@@ -590,6 +622,7 @@ func (p *Parser) parseFunctionCall(ftnName ast.Expression) ast.Expression {
 		ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
 
 	}
+	_ = p.errorStop(token.RBRACKET)
 	return ftnCall
 }
 
@@ -621,4 +654,96 @@ func (p *Parser) arrayBodyParse() []ast.Expression {
 	p.rollToken()
 
 	return arrayInside
+}
+
+func (p *Parser) lengthParse() ast.Expression {
+
+	name := &ast.Identifier{
+		Token: token.Token{
+			Type:  token.IDENT,
+			Value: "len",
+		},
+	}
+
+	ftnCall := &ast.FunctionCall{
+		Token:        p.curToken,
+		FunctionName: name,
+	}
+
+	if p.expectingToken(token.RBRACKET) {
+		return ftnCall
+	}
+
+	p.rollToken()
+	ftnCall.ArgumentsCall = []ast.Expression{}
+	p.rollToken()
+	ftnCall.ArgumentsCall = append(ftnCall.ArgumentsCall, p.ParsingExpression(GENERAL))
+
+	if !p.peekTokenCheck(token.RBRACKET) {
+
+		p.errorStop(token.RBRACKET)
+	}
+
+	p.rollToken()
+	return ftnCall
+}
+
+func (p *Parser) errorStop(token string) bool {
+
+	if token == p.peekToken.Value {
+		return true
+	} else {
+		p.errorValidity(token)
+	}
+	return false
+}
+
+func (p *Parser) ParseFile() ast.Statement {
+
+	file := &ast.FileHandler{
+		Token: p.curToken,
+	}
+
+	p.rollToken()
+	file.FileName = p.curToken.Value
+
+	if !p.peekTokenCheck(token.ASSIGN) {
+
+		p.errorStop(token.ASSIGN)
+	}
+
+	file.Arguments = []ast.Expression{}
+
+	p.rollToken()
+	p.rollToken()
+
+	if !p.presentToken(token.LBRACKET) {
+		p.errorStop(token.LBRACKET)
+	}
+
+	p.rollToken()
+
+	if p.curToken.Type == token.STRING && p.peekTokenCheck(token.GREATER) {
+		file.Arguments = append(file.Arguments, &ast.StringLine{
+			Token: p.curToken,
+			Line:  p.curToken.Value,
+		})
+
+		p.rollToken()
+		p.rollToken()
+
+		file.Arguments = append(file.Arguments, &ast.StringLine{
+			Token: p.curToken,
+			Line:  p.curToken.Value,
+		})
+
+	}
+
+	if !p.peekTokenCheck(token.RBRACKET) {
+		p.errorStop(token.RBRACKET)
+	}
+
+	p.rollToken()
+
+	return file
 }

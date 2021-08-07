@@ -7,17 +7,18 @@ import (
 	"null/lexer"
 	"null/object"
 	"null/parser"
-	"strings"
+	_ "strings"
 )
 
 func ReadingProcess(input string, env *object.Env) {
+
 	lex := lexer.Create(input)
 	parse := parser.New(lex)
 	prgm := parse.ParseProgram()
-
 	eval := evaluation.Wrapper(prgm, env)
 
 	for _, val := range eval.(*object.BlockStmts).Block {
+
 		if valueCheck := val.Inspect(); valueCheck != "" {
 			fmt.Println(valueCheck)
 		}
@@ -29,14 +30,16 @@ func Begin(inPoint *bufio.Scanner, fileVal string) {
 	env := object.NewEnv()
 
 	if fileVal != "" {
+
 		ReadingProcess(fileVal, env)
 	} else {
 		var scanLine string
 		for {
 
-			if !strings.Contains(scanLine, "ni(") && !strings.Contains(scanLine, "ns(") {
-				fmt.Printf(">> ")
-			}
+			// if !strings.Contains(scanLine, "ni(") && !strings.Contains(scanLine, "ns(") {
+			fmt.Printf(">> ")
+
+			// }
 			_ = inPoint.Scan()
 			scanLine = inPoint.Text()
 			if scanLine == "bye" {

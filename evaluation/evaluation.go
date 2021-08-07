@@ -1,7 +1,9 @@
 package evaluation
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
 	"null/ast"
 	"null/object"
 	"null/token"
@@ -25,7 +27,6 @@ var collection object.MainObject
 func Wrapper(typeStruct ast.Node, env *object.Env) object.MainObject {
 
 	Eval(typeStruct, env)
-
 	return collection
 
 }
@@ -38,8 +39,7 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 		collection = evaluate(ch.Statements, env)
 
 	case *ast.ParseExp:
-		// fmt.Println(ch.Exp)
-		// fmt.Println("this is inside parse exp : ", ch.Token.Type, " -- ", ch.Exp)
+
 		return Eval(ch.Exp, env)
 
 	case *ast.BooleanValue:
@@ -56,15 +56,15 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 	case *ast.FunctionCall:
 
 		name := Eval(ch.FunctionName, env)
+
 		return evalFtnCall(ch, name, env)
 
 	case *ast.IfStatement:
 
-		conditionBool := evaluateIf(ch.Condition, ch.Body, ch.ElseBody, env)
+		conditionBool := ifConditionCheck(ch, env)
 		return conditionBool
 
 	case *ast.VarStmt:
-		// fmt.Println("it's here", ch.Token.Type, ch.Name, ch.Value)
 
 		rightExp := Eval(ch.Value, env)
 
@@ -72,6 +72,12 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 	case *ast.BodyStatement:
 		return evaluateBody(ch.Statement, env)
+
+	case *ast.ArrayCall:
+
+		index := Eval(ch.Index, env)
+		value := indexVal(index, ch.Name, env)
+		return value
 
 	case *ast.Identifier:
 		return checkIdentifier(ch, env)
@@ -102,13 +108,16 @@ func Eval(typeStruct ast.Node, env *object.Env) object.Object {
 
 		return stringStore(ch, env)
 
+	case *ast.FileHandler:
+		evalFile(ch, env)
+		// return nil
 	}
 
 	return nil
 }
 
 func stringStore(ch *ast.StringLine, env *object.Env) object.Object {
-	// fmt.Println("======", ch.Token)
+
 	return &object.StringType{
 		Word: ch.Line,
 	}
@@ -117,9 +126,9 @@ func stringStore(ch *ast.StringLine, env *object.Env) object.Object {
 
 func EvalLoop(choice *ast.LoopStmt, env *object.Env) {
 
-	conditionLoop := Eval(choice.Condition, env)
+	conditionLoop := whileConditionCheck(choice.Condition, env)
 
-	if conditionLoop.Inspect() != "false" {
+	if conditionLoop {
 		BodyStmtLoop := Eval(choice.Body, env)
 		if BodyStmtLoop.Inspect() != "" {
 			//printing the contents in the loop
@@ -143,10 +152,18 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 			rightExp := Eval(ch.Right, env)
 
-			switch ch := ch.Right.(type) {
+			switch choice2 := ch.Right.(type) {
 
 			case *ast.FunctionCall:
-				niAndns(choice.String(), ch, env)
+
+				if choice2.FunctionName.String() == "ni" || choice2.FunctionName.String() == "ns" {
+					niAndns(choice.String(), choice2, env)
+
+				} else if choice2.FunctionName.String() == "chr" {
+
+					env.ChangeVal(choice.String(), rightExp)
+
+				}
 
 			default:
 
@@ -157,8 +174,24 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 				}
 
 			}
+			// return nil
+		case *ast.InfixExp:
+
+			index, _ := strconv.Atoi(choice.Right.String())
+			value := &object.StringType{
+				Word: ch.Right.String(),
+			}
+
+			env.IndexValChange(choice.Left.String(), index, value)
+
 			return nil
 
+		case *ast.ArrayCall:
+			// leftExp := Eval(ch.Left, env)
+			rightExp := Eval(ch.Right, env)
+
+			//pending : should check if the value has been changed or not
+			arrayValChange(ch.Left.(*ast.ArrayCall), rightExp, env)
 		default:
 			return ErrorMsgUpdate("Variable declaration not done right")
 		}
@@ -167,38 +200,52 @@ func infixEvaluationWrapper(ch *ast.InfixExp, env *object.Env) object.Object {
 
 		num := Eval(ch.Right, env)
 
-		return indexVal(num, ch.Left, env)
+		return indexVal(num, ch.Left.String(), env)
 		// return ErrorMsgUpdate("oooopppssss you on right track but we are woking on that ")
+	} else {
+
+		leftExp := Eval(ch.Left, env)
+
+		rightExp := Eval(ch.Right, env)
+
+		return evaluateInfix(leftExp, rightExp, ch.Operator, env)
 	}
 
-	leftExp := Eval(ch.Left, env)
-
-	rightExp := Eval(ch.Right, env)
-	return evaluateInfix(leftExp, rightExp, ch.Operator, env)
-
+	return nil
 }
 
-func indexVal(index object.Object, name ast.Expression, env *object.Env) object.Object {
+func arrayValChange(arrObj ast.Expression, val object.Object, env *object.Env) bool {
+
+	// valInt,_ := strconv.Atoi(val.Inspect())
+	indexTemp := Eval(arrObj.(*ast.ArrayCall).Index, env)
+	index, _ := strconv.Atoi(indexTemp.Inspect())
+
+	env.IndexValChange(arrObj.(*ast.ArrayCall).Name, index, val)
+
+	return false
+}
+
+func indexVal(index object.Object, name string, env *object.Env) object.Object {
+
 	val, _ := strconv.Atoi(index.Inspect())
 
-	kal, _ := env.GetEnv(name.String())
+	nameVar, _ := env.GetEnv(name)
 
-	switch kal.(type) {
+	switch nameVar.(type) {
 
 	case *object.StringType:
 
-		dam := kal.(*object.StringType).Word[val]
+		indexedWord := nameVar.(*object.StringType).Word[val]
 		return &object.StringType{
-			Word: string(dam),
+			Word: string(indexedWord),
 		}
 
 	default:
-		return kal.(*object.ArrayContents).Body[val]
+		return nameVar.(*object.ArrayContents).Body[val]
 	}
 }
 
 func checkIdentifier(choice *ast.Identifier, env *object.Env) object.Object {
-
 	if val, _ := env.GetEnv(choice.String()); val != nil {
 
 		return val
@@ -228,42 +275,40 @@ func StoreVal(name *ast.VarStmt, exp object.Object, env *object.Env) {
 
 	//to check if it's funtion to accept user input
 	case *ast.FunctionCall:
+		if choice.FunctionName.String() == "ns" || choice.FunctionName.String() == "ni" {
+			niAndns(name.Name.String(), choice, env)
+		} else if choice.FunctionName.String() == "len" {
 
-		niAndns(name.Name.String(), choice, env)
+			length := builtinLen(choice.ArgumentsCall[0].String(), env)
 
+			env.SetEnv(name.Name.String(), length)
+		} else if choice.FunctionName.String() == "chr" {
+
+			env.SetEnv(name.Name.String(), exp)
+		}
 	default:
 
 		env.SetEnv(name.Name.String(), exp)
 
 	}
-	// fmt.Println(name.String(), name.TokenLiteral())
 
 }
 
-func evaluateIf(condition ast.Expression, body *ast.BodyStatement,
-	elseBody *ast.BodyStatement, env *object.Env) object.Object {
+func ifConditionCheck(ifChoice *ast.IfStatement, env *object.Env) object.Object {
 
-	boolValue := Eval(condition, env)
-	var returnVal object.Object
+	for _, condition := range ifChoice.ElfStmt {
 
-	switch boolValue {
-	case TRUE:
-		returnVal = Eval(body, env)
+		boolValue := Eval(condition.Condition, env)
+		if boolValue.(*object.Boolean).Value {
 
-	case FALSE:
-
-		if elseBody != nil {
-			returnVal = Eval(elseBody, env)
-			return returnVal
+			return Eval(condition.Body, env)
 		}
-		// returnVal = &object.Null{}
-
-	default:
-		ErrorMsgUpdate("condition has some problems :( ")
-
 	}
 
-	return returnVal
+	if ifChoice.ElseBody != nil {
+		return Eval(ifChoice.ElseBody, env)
+	}
+	return nil
 }
 
 func evaluate(stmt []ast.Statement, env *object.Env) object.MainObject {
@@ -307,32 +352,60 @@ func settingBoolean(val bool) object.Object {
 
 func evaluateInfix(leftExp, rightExp object.Object, operator string, env *object.Env) object.Object {
 
-	leftNumb, rightNumb := leftExp.(*object.Integer).Val, rightExp.(*object.Integer).Val
-	if leftExp.Type() == "INTEGER" && rightExp.Type() == "INTEGER" {
+	switch leftExp.(type) {
+	case *object.StringType:
+
+		leftStmt, rightStmt := leftExp.(*object.StringType).Word, rightExp.(*object.StringType).Word
+
 		switch operator {
-		case token.PLUS:
-			return &object.Integer{Val: leftNumb + rightNumb}
 
-		case token.MINUS:
-			return &object.Integer{Val: leftNumb - rightNumb}
+		case token.NEQUAL:
 
-		case token.DIVIDE:
-			return &object.Integer{Val: leftNumb / rightNumb}
-
-		case token.MODULO:
-			return &object.Integer{Val: leftNumb % rightNumb}
-
-		case token.MULTI:
-			return &object.Integer{Val: leftNumb * rightNumb}
+			return settingBoolean(leftStmt != rightStmt)
 
 		case token.EQUAL:
-			return settingBoolean(leftNumb == rightNumb)
 
-		case token.GREATER:
-			return settingBoolean(leftNumb > rightNumb)
+			return settingBoolean(leftStmt == rightStmt)
 
-		case token.LESSER:
-			return settingBoolean(leftNumb < rightNumb)
+		default:
+
+			ErrorMsgUpdate("Condition not supported by null langauge")
+			return nil
+		}
+
+	case *object.Integer:
+
+		leftNumb, rightNumb := leftExp.(*object.Integer).Val, rightExp.(*object.Integer).Val
+
+		if leftExp.Type() == "INTEGER" && rightExp.Type() == "INTEGER" {
+			switch operator {
+			case token.PLUS:
+				return &object.Integer{Val: leftNumb + rightNumb}
+
+			case token.MINUS:
+				return &object.Integer{Val: leftNumb - rightNumb}
+
+			case token.DIVIDE:
+				return &object.Integer{Val: leftNumb / rightNumb}
+
+			case token.MODULO:
+				return &object.Integer{Val: leftNumb % rightNumb}
+
+			case token.MULTI:
+				return &object.Integer{Val: leftNumb * rightNumb}
+
+			case token.EQUAL:
+				return settingBoolean(leftNumb == rightNumb)
+
+			case token.GREATER:
+				return settingBoolean(leftNumb > rightNumb)
+
+			case token.LESSER:
+				return settingBoolean(leftNumb < rightNumb)
+
+			case token.NEQUAL:
+				return settingBoolean(leftNumb != rightNumb)
+			}
 		}
 	}
 	return nil
@@ -361,22 +434,54 @@ func prefixEval(operator string, rightExp object.Object) object.Object {
 
 func evalFtnCall(choice ast.Expression, builtin object.Object, env *object.Env) object.Object {
 
-	// fmt.Println("hey biatch : ", choice.(*ast.FunctionCall).ArgumentsCall)
-
 	args := choice.(*ast.FunctionCall).ArgumentsCall
 
-	analysedArgs := []object.Object{}
+	//to avoid unnecessary declaration
+	if len(args) > 0 {
 
-	for _, val := range args {
-		analysedArgs = append(analysedArgs, Eval(val, env))
+		noutResponse := builtin.(*object.Wrapper)
+
+		if noutResponse.Name == "np" {
+			analysedArgs := []object.Object{}
+
+			for _, val := range args {
+				analysedArgs = append(analysedArgs, Eval(val, env))
+			}
+
+			response := noutResponse.WrapperFunc(analysedArgs)
+			fmt.Println(response.Inspect())
+
+		} else if noutResponse.Name == "len" {
+
+			return builtinLen(args[0].String(), env)
+
+		} else if noutResponse.Name == "chr" {
+
+			res := Eval(args[0], env)
+
+			return asciiChar(res, env)
+		} else if noutResponse.Name == "push" {
+
+			if len(args) == 2 {
+
+				intVal, _ := strconv.Atoi(args[1].String())
+
+				appendVal := &object.Integer{
+					Val: int64(intVal),
+				}
+				variable, _ := env.GetEnv(args[0].String())
+
+				variable.(*object.ArrayContents).Body = append(variable.(*object.ArrayContents).Body, appendVal)
+
+				env.SetEnv(args[0].String(), variable)
+
+			} else {
+
+				ErrorMsgUpdate("Syntx Error \nThis function only supports 2 parameters")
+			}
+		}
 	}
-
-	noutResponse := builtin.(*object.Wrapper)
-
-	response := noutResponse.WrapperFunc(analysedArgs)
-
-	// fmt.Println("there you g maite finally : ", kal)
-	return response
+	return nil
 }
 
 func evaluateCall(ch []ast.Expression, env *object.Env) []object.Object {
@@ -392,6 +497,7 @@ func evaluateCall(ch []ast.Expression, env *object.Env) []object.Object {
 }
 
 func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
+
 	if choice.FunctionName.String() == "ns" {
 
 		input := &object.StringType{}
@@ -402,7 +508,9 @@ func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
 			fmt.Println(choice.String())
 
 		}
-		fmt.Scanf("%s", &input.Word)
+		in := bufio.NewScanner(os.Stdin)
+		in.Scan()
+		input.Word = in.Text()
 
 		env.SetEnv(name, input)
 
@@ -416,9 +524,78 @@ func niAndns(name string, choice *ast.FunctionCall, env *object.Env) {
 
 		}
 
-		fmt.Scanf("%d", &input.Val)
+		fmt.Scanln(&input.Val)
 
 		env.SetEnv(name, input)
 
 	}
+}
+
+func builtinLen(name string, env *object.Env) object.Object {
+
+	variable, _ := env.GetEnv(name)
+
+	switch choice := variable.(type) {
+
+	case *object.ArrayContents:
+
+		return &object.Integer{
+			Val: int64(len(choice.Body)),
+		}
+
+	default:
+		return &object.Integer{
+
+			Val: int64(len(variable.Inspect())),
+		}
+	}
+
+}
+
+func asciiChar(word object.Object, env *object.Env) object.Object {
+
+	switch ch := word.(type) {
+
+	case *object.Integer:
+
+		return &object.StringType{
+			Word: string(ch.Val),
+		}
+
+	default:
+		fmt.Println("oops this function is currently under work")
+		os.Exit(0)
+	}
+
+	return nil
+}
+
+func evalFile(filePoint *ast.FileHandler, env *object.Env) {
+
+	if filePoint.Arguments[1].String() == "r" {
+		text, err := ioutil.ReadFile(filePoint.Arguments[0].String())
+
+		if err != nil {
+			ErrorMsgUpdate("Error : couldnt find the file \nUsual Reasons : Wrong directory/mispelled file name ")
+		}
+
+		//converting the text to object
+		evalText := &object.StringType{
+			Word: string(text),
+		}
+
+		env.SetEnv(filePoint.FileName, evalText)
+
+	} else if filePoint.Arguments[1].String() == "w" {
+		ErrorMsgUpdate("Evaluation Error : This function is currently under development")
+	} else {
+		ErrorMsgUpdate("Error : Invalid file mehtod")
+	}
+}
+
+func whileConditionCheck(condition ast.Expression, env *object.Env) bool {
+
+	parsedCondition := Eval(condition, env)
+
+	return parsedCondition.(*object.Boolean).Value
 }

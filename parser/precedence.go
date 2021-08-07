@@ -17,5 +17,6 @@ var Precedence = map[string]int{
 	token.DIVIDE:     CROSSDIV,
 	token.MODULO:     CROSSDIV,
 	token.LBRACKET:   CALL,
-	token.LSQBRACKET: ASSIGN,
+	token.RBRACKET:   GENERAL,
+	token.LSQBRACKET: PREFIX,
 }

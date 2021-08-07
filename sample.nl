@@ -1,14 +1,42 @@
+np("========")
+var line = ns("enter the S P A C E  : ");
+var point = 0;
+var val = [0];
+var valPointer = 0;
+var arrayExpand = 1;
 
-var sm = [8,1,4,2,6,"hello","friend"];
+while(point < len(line)){
 
-var counter = ni("enter a number : ");
+    if(line[point] == " "){
 
-var flag = 1
-while(flag<counter){
+        val[valPointer] = val[valPointer]+1;
 
-    np(sm[flag]);
+    } elf(line[point] ==  "^"){
 
-    flag = flag+1;
+        val[valPointer] = val[valPointer] - 1;
+
+    } elf(line[point] == "_"){
+        np(chr(val[valPointer]));
+
+    } elf(line[point] == "}"){
+        if(valPointer == len(val) - 1 ){
+            valPointer = valPointer+1;
+            push(val,0);
+            arrayExpand = arrayExpand +1;
+        }else{
+            valPointer = valPointer +1;
+        }
+    } elf(line[point] == "\"){
+        if(val[valPointer] != 0){
+            while(line[point] != "/" ){
+                point = point - 1;
+            }
+        }
+
+    } elf(line[point] == "{"){
+        valPointer = valPointer -1;
+    }
+
+    point = point+1;
 
 }
-

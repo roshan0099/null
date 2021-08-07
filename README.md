@@ -15,8 +15,18 @@ So far null is in its bare bones, it has variable declarition which are string a
 - [x] array
 - [x] loop
 - [x] accepts user input
+- [x] ascii 
 - [x] if - else condition
-- [ ] if - else if
+- [x] if - else if
 - [ ] simple file handling
-- [ ] Ascii support
 - [ ] Function
+
+## Sample Code
+
+> Print first 10 even numbers
+
+  ![Sample-Code](images/even.png)
+
+> Basic space (Simple Esolang) implementation using Null  
+
+  ![Sample-Code](images/space.png)

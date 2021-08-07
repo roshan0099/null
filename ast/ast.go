@@ -191,11 +191,28 @@ func (b *BooleanValue) String() string {
 	return b.Token.Value
 }
 
-type IfStatement struct {
+type ElfStatement struct {
 	Token     token.Token
 	Condition Expression
 	Body      *BodyStatement
-	ElseBody  *BodyStatement
+}
+
+func (e *ElfStatement) TokenLiteral() string { return e.Token.Value }
+func (e *ElfStatement) expressionNode()      {}
+func (e *ElfStatement) String() string {
+
+	var outinfo bytes.Buffer
+
+	outinfo.WriteString(e.Token.Value + "(" + e.Condition.String() + "){ " + e.Body.String() + "}")
+
+	return outinfo.String()
+}
+
+type IfStatement struct {
+	Token   token.Token
+	ElfStmt []*ElfStatement
+	// Body      *BodyStatement
+	ElseBody *BodyStatement
 }
 
 func (I *IfStatement) TokenLiteral() string {
@@ -208,11 +225,20 @@ func (I *IfStatement) String() string {
 
 	var concatInfo bytes.Buffer
 
-	concatInfo.WriteString("if")
+	// concatInfo.WriteString("if")
 
-	concatInfo.WriteString(I.Condition.String() + "{")
+	// concatInfo.WriteString(I.Condition.String() + "{")
 
-	concatInfo.WriteString(I.Body.String() + "}")
+	// concatInfo.WriteString(I.Body.String() + "}")
+
+	if len(I.ElfStmt) > 0 {
+
+		for _, val := range I.ElfStmt {
+
+			concatInfo.WriteString(val.String())
+		}
+
+	}
 
 	if I.ElseBody == nil {
 		return concatInfo.String()
@@ -358,3 +384,40 @@ func (a *ArrayType) String() string {
 	return concatInfo.String()
 }
 func (a *ArrayType) expressionNode() {}
+
+type ArrayCall struct {
+	Token token.Token
+	Name  string
+	Index Expression
+}
+
+func (a *ArrayCall) TokenLiteral() string { return a.Token.Value }
+func (a *ArrayCall) expressionNode()      {}
+func (a *ArrayCall) String() string {
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString(a.Name + "[" + a.Index.String() + "]")
+
+	return concatInfo.String()
+}
+
+type FileHandler struct {
+	Token     token.Token
+	FileName  string
+	Arguments []Expression
+}
+
+func (f *FileHandler) TokenLiteral() string { return "File" }
+func (f *FileHandler) statementNode()       {}
+func (f *FileHandler) String() string {
+
+	var concatInfo bytes.Buffer
+
+	concatInfo.WriteString(f.Token.Value + " " + f.FileName + " = ")
+
+	for _, val := range f.Arguments {
+		concatInfo.WriteString(val.String() + " ")
+	}
+
+	return concatInfo.String()
+}
