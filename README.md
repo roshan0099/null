@@ -25,4 +25,8 @@ So far null is in its bare bones, it has variable declarition which are string a
 
 > Print first 10 even numbers
 
-![Sample-Code](images/even.png)
+  ![Sample-Code](images/even.png)
+
+> Basic space (Simple Esolang) implementation using Null  
+
+  ![Sample-Code](images/space.png)
