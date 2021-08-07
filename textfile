@@ -1,1 +1,101 @@
-hey yo, just to test the file feature of null
+var line = ns("enter the enigma : ");
+var point = 0;
+var val = [0];
+var valPointer = 0;
+var arrayExpand = 1;
+np("haai")
+while(point < len(line)){
+    np("hai")
+    np("line", line[point], val, valPointer)
+    if(line[point] == " "){
+        val[valPointer] = val[valPointer]+1;
+        np("+++", val[valPointer])
+    } elf(line[point] ==  "^"){
+        np("val annan", val[valPointer])
+        val[valPointer] = val[valPointer] - 1;
+    } elf(line[point] == "_"){
+        np("==============", val[valPointer], valPointer)
+        np(chr(val[valPointer]));
+
+    } elf(line[point] == "}"){
+        np("lllll", valPointer, len(val))
+        if(valPointer == len(val) - 1 ){
+            np("ulllil")
+            valPointer = valPointer+1;
+            push(val,0);
+            np("pooshi", val)
+            arrayExpand = arrayExpand +1;
+        }else{
+            valPointer = valPointer +1;
+        }
+    } elf(line[point] == "\"){
+        np("ppppppppppppppppppppp");
+        if(val[valPointer] != 0){
+            np("jO")
+            while(line[point] != "/" ){
+                point = point - 1;
+            }
+        }
+
+    } elf(line[point] == "{"){
+        np("maalr : ", valPointer)
+        valPointer = valPointer -1;
+    }
+
+    point = point+1;
+
+}
+
+
+
+
+
+
+     /}       {^\}_
+
+
+
+
+     np(" ")
+var line = ns("enter the S A C E  : ");
+var point = 0;
+var val = [0];
+var valPointer = 0;
+var arrayExpand = 1;
+
+while(point < len(line)){
+
+    if(line[point] == " "){
+
+        val[valPointer] = val[valPointer]+1;
+
+    } elf(line[point] ==  "^"){
+
+        val[valPointer] = val[valPointer] - 1;
+
+    } elf(line[point] == "_"){
+        np(chr(val[valPointer]));
+
+    } elf(line[point] == "}"){
+        if(valPointer == len(val) - 1 ){
+            valPointer = valPointer+1;
+            push(val,0);
+            arrayExpand = arrayExpand +1;
+        }else{
+            valPointer = valPointer +1;
+        }
+    } elf(line[point] == "\"){
+        if(val[valPointer] != 0){
+            while(line[point] != "/" ){
+                point = point - 1;
+            }
+        }
+
+    } elf(line[point] == "{"){
+        valPointer = valPointer -1;
+    }
+
+    point = point+1;
+
+}
+

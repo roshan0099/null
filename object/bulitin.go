@@ -66,4 +66,14 @@ var Builtin = map[string]Object{
 
 		},
 	},
+
+	"push": &Wrapper{
+		Name: "push",
+		WrapperFunc: func(args []Object) Object {
+
+			// noutStore := &Nout{}
+			return nil
+
+		},
+	},
 }

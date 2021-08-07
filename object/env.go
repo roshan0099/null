@@ -23,7 +23,6 @@ func (e *Env) SetEnv(name string, obj Object) {
 func (e *Env) GetEnv(name string) (Object, bool) {
 
 	val, ok := e.Store[name]
-	// fmt.Println("sampling +> ", val)
 	return val, ok
 }
 

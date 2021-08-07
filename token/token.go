@@ -56,6 +56,7 @@ const (
 
 	IF   = "IF"
 	ELSE = "ELSE"
+	ELF  = "ELF"
 
 	//LOOP
 	WHILE = "WHILE"
@@ -65,12 +66,12 @@ const (
 )
 
 var keywords = map[string]string{
-	"cout":   COUT,
 	"var":    VAR,
 	"return": RETURN,
 	"true":   TRUE,
 	"false":  FALSE,
 	"if":     IF,
+	"elf":    ELF,
 	"else":   ELSE,
 	"while":  WHILE,
 	"ftn":    FUNCTION,
