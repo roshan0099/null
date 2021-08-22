@@ -5,7 +5,7 @@ Trying to create a  basic interpreted programming language  to learn more about 
 
 ## Update 
 
-So far null is in its bare bones, it has variable declarition which are string and int plus null also supports array (early stage). There is a space left for function declaration and calling which need to be emended a big time. Currently working on some built-in functions.
+So far null is in its bare bones, it has variable declaritions like string and int plus null also supports array (early stage). There is a space left for function declaration and calling that need to be emended a big time. Currently working on some built-in functions.
 
 
 ## Features
